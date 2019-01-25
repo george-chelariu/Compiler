@@ -15,7 +15,7 @@ using namespace std;
 //      BADCHAR     to indicate erroneous char symbol
 
 //      Apparently DIV and MOD are not supposed to be there because they aren't part of PL
-enum symbol {ID=256, NUM, BADNUM, BADNAME,          // 256 - 259
+enum Symbol {ID=256, NUM, BADNUM, BADNAME,          // 256 - 259
              NEWLINE, NONAME, ENDOFFILE, DIV,       // 260 - 263
              MOD, SEMICOLON, PLUS, MINUS,           // 264 - 267
              TIMES, DIVIDE, LEFTP, RIGHTP,          // 268 - 271

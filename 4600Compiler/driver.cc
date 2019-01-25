@@ -2,6 +2,8 @@
 #include <fstream>
 
 #include "admin.h"
+#include "scanner.h"
+#include "symtable.h"
 
 // The original grammar for infix2postfix translator
 //
@@ -29,11 +31,17 @@ int main(int argc, char *argv[])
         cerr << "PL_file " << argv[1] << " could not be opened" << endl;
         return 1;
     }
+    ofstream outputfile(argv[2]);
+    if(!outputfile)
+    {
+        cerr << "Output_file" << argv[2] << " could not be opened" << endl;
+        return 1;
+    }
     // create a symbol table
     Symtable st;
 
     // create a scanner
-    Scanner sc(inputfile, st);
+    Scanner sc(&inputfile, &st);
 
     //Get the compiler running.
     Administration compiler(inputfile, outputfile, sc);

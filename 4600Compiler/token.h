@@ -29,7 +29,7 @@ public:
     //Return the terminal symbol
     Symbol getSymbol()const {return sname;}
     //return attribute values
-    int getValue()const {return svalue.svalue;};
+    int getValue()const {return svalue.value;};
     string getLexeme()const {return svalue.lexeme;}
     //print the token
     void insert(ostream &os){os << "Token: " << spellS(sname) << "\n"
@@ -47,5 +47,5 @@ private:
         Symbol sname;   // terminal name
 };
 //overloaded stream insertion
-ostream& operator(ostream&, Token&);
+ostream& operator<<(ostream&, Token&);
 #endif // TOKEN_H

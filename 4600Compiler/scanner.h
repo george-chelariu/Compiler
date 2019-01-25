@@ -11,6 +11,7 @@
 #include <string>
 #include "token.h"
 #include "symtable.h"
+#include "scanner.cc"
 
 using namespace std;
 
@@ -33,7 +34,7 @@ class Scanner{
     Scanner(ifstream &instream, Symtable &symboltable);
 
     // The destructor function currently does nothing
-    ~Scanner();
+    ~Scanner() {}
 
 //    The most important function. The main scanner interface.
 //    It scans the next sequence of characters in the input and tries
