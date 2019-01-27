@@ -41,18 +41,20 @@ int main(int argc, char *argv[])
         return 1;
     }
     // create a symbol table
+
+
     Symtable st;
 
-    // create a scanner
+    //create a scanner
     Scanner sc(&inputfile, &st);
 
     //Get the compiler running.
     Administration compiler(inputfile, outputfile, sc);
     int status = compiler.scan();
     if (status ==0)
-        cout << "Scanning successful" << endl;
-    else
-        cerr << "Program contains scan error(s)" << endl;
+     cout << "Scanning successful" << endl;
+	 else
+    cerr << "Program contains scan error(s)" << endl;
 
     return 0;
 }

@@ -26,7 +26,7 @@ class Administration
     ~Administration() {}
 
     // begin a new line of input
-    void NewLine(){lineNo++; correctline = true;}
+    void NewLine();
 
     // Error function for the phases
     void error (string text);

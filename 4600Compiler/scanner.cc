@@ -12,17 +12,19 @@ Scanner::Scanner(ifstream *instream, Symtable *symboltable)
 {
     inputfileptr = instream;
     symtableptr = symboltable;
+    laChar= ' ';
+    *inputfileptr >> noskipws;
 }
 
 Token Scanner::getToken()
 {
-    while (!inputfileptr->eof() && !(laChar == ' ' || laChar == '\t'))
+    while (!inputfileptr->eof() && (laChar == ' ' || laChar == '\t'))
     {
-        *inputfileptr >> laChar;
+       *inputfileptr >> laChar;
     }
     if(isAlpha(laChar))
     {
-        return recognizeName();
+       return recognizeName();
     }
     if(isNumeric(laChar))
     {
@@ -52,18 +54,17 @@ bool Scanner::isWhitespace (char achar)
 bool Scanner::isAlpha (char achar)
 {
     //A-Z and a-z find themselves between [65, 90] and [97, 122] respectively
-    if (((achar > 64) && (achar < 91)) || ((achar > 96) && (achar < 123)))
-    {
-        return true;
-    }
-    return false;
+   if ((achar >= 'A' && achar <= 'Z') || (achar >= 'a' && achar <=  'z'))
+      return true;
+   
+   return false;
 }
 
 bool Scanner::isNumeric(char achar)
 {
-    //if achar is between the ascii values for 0 and 9 return true else false
-    if ((achar > 47) && (achar < 58))
-        return true;
+   //if achar is between the ascii values for 0 and 9 return true else false
+   if ((achar >= '0') && (achar <= '9'))
+       return true;
     return false;
 }
 
@@ -76,9 +77,9 @@ bool Scanner::isSpecial(char achar)
         the symbols according to the if condition
         $ & ( ) * + , - . / : ; < = > [ \ ] | ~
     */
-    if (achar == 38 || (achar > 39 && achar < 48)
-        || (achar > 57 && achar < 63) || (achar > 90 && achar < 94)
-        || achar == 124 || achar == 126)
+    if (achar == '&' || (achar >= '(' && achar <= '/')
+        || (achar >= ':' && achar <= '>') || (achar >= '[' && achar <= ']')
+        || achar == '|' || achar == '~' || achar == '\n')
     {
         return true;
     }
@@ -87,12 +88,15 @@ bool Scanner::isSpecial(char achar)
 
 Token Scanner::recognizeName()
 {
-    string theName = "";
-    theName+=laChar;
-    while(isAlpha(laChar)  || isNumeric(laChar) || laChar == '_')
+   string theName ="";
+   theName += laChar;
+ 
+   while((isAlpha(laChar)  || isNumeric(laChar) || laChar == '_') )
     {
+
         *inputfileptr >> laChar;
         theName+=laChar;
+
     }
     Token recogName(ID, symtableptr->insert(theName), theName);
     return recogName;
@@ -100,8 +104,8 @@ Token Scanner::recognizeName()
 
 Token Scanner::recognizeSpecial()
 {
-    string theSpecial = "";
-    theSpecial+=laChar;
+   string theSpecial ="";
+   theSpecial += laChar;
     // laChar moves forward no matter what
     *inputfileptr >> laChar;
     // the -> case
@@ -161,14 +165,18 @@ Token Scanner::recognizeSpecial()
         Token recogRightP(RIGHTP, -1, theSpecial);
         return recogRightP;
     }
+    if(theSpecial == "\n"){
+       Token newline (NEWLINE, -1, theSpecial);
+       return newline;
+    }
     Token unrecognizable(BADCHAR, -1, " ");
     return unrecognizable;
 }
 
 Token Scanner::recognizeNumeral()
 {
-    string theNumber = "";
-    theNumber+=laChar;
+   string theNumber="";
+   theNumber += laChar;
     while(isNumeric(laChar))
     {
         *inputfileptr >> laChar;

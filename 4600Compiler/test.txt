@@ -1,0 +1,25 @@
+This is a test file that mainly does text
+
+with some double newlines
+
+1 2 3 123 456 7 8 9 0 0987654321
+
+qwertyuiopasdfghjklzxcvbnm
+$sometimes you dont want people to know
+...,.hello.;sample_test
+	yellow	bus;
+a1_b2
+123jumbo wumbo123
+[] -> := . , : [ ] & | - < = > + - * / \ ( ) 
+sometimes I have no Idea $and this should be hidden
+
+woop.idont know[1243]
+\n
+
+{
+
+
+
+
+
+jkhsafkl
