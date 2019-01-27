@@ -4,6 +4,8 @@
 #include "admin.h"
 #include "scanner.h"
 #include "symtable.h"
+#include "token.h"
+#include "symbol.h"
 
 // The original grammar for infix2postfix translator
 //

@@ -1,6 +1,7 @@
+#ifndef SYMTABLE_H
+#include "symtable.h"
 
-
-void loadResvd(){
+void Symtable::loadResvd(){
    insert("begin");
    insert("end");
    insert("const");
@@ -19,7 +20,7 @@ void loadResvd(){
    insert("false");
    insert("true");
 }
-int search(string s){
+int Symtable::search(string s){
    int number=0;
    int hash = hashfn(s);
    for(int i= 0; i< SYMTABLESIZE; i++){ // loop to look for the closest hole
@@ -33,7 +34,7 @@ int search(string s){
    return -1;
 }
 
-int insert (string s){
+int Symtable::insert (string s){
    if (full()) //making sure there is a hole before doing all the math
       return -1; // -1 meaning the table is full
    else{
@@ -53,7 +54,13 @@ int insert (string s){
    return -1;
 }
 
-void printTable(){
+void Symtable::insert (string s){
+   int filler;
+   filler = insert(s);
+   return;
+}
+
+void Symtable::printTable(){
    for(int i =0; i< SYMTABLESIZE; i++){
       if (htable[i] != NULL) 
 	 cout << "1: \"" << htable[i] << '\"' << endl;
@@ -62,10 +69,12 @@ void printTable(){
 
 }
 
-int hashfn(string s){
+int Symtable::hashfn(string s){
    hash<string> str_hash; //setting up hash
    int number = static_cast<int> (str_hash(s)); // doing hash and converting from size_t to int
    if (number< 0) // confirming positive value after convertion
       number = number * -1; // making it positive
    return number;
 }
+
+#endif

@@ -1,26 +1,36 @@
-//#include <iostream>
-//#include <fstream>
-//#include <string>
-//#include <vector>
-//#include "scanner.h"
-//
-//using namespace std;
-//
-//Scanner(ifstream &instream, Symtable &symboltable)
-//{
-//    instream = *inputfileptr;
-//    symboltable = *symtableptr;
-//}
-//
-//Token getToken()
-//{
-//    vector<Symbol> Tok(*inputfileptr);
-////    int firstTen = 0;
-////    cout << "Enter input file location:" << endl;
-////    cin >> file;
-////    *inputfileptr =
-////    while (firstTen != 10)
-////    {
-////
-////    }
-//}
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include "scanner.h"
+#ifndef SCANNER_H
+
+using namespace std;
+
+Scanner::Scanner(ifstream *instream, Symtable *symboltable)
+{
+    inputfileptr = instream;
+    symtableptr = symboltable;
+}
+
+Token Scanner::getToken()
+{
+}
+
+Token Scanner::recognizeName(){
+
+}
+
+Token Scanner::recognizeSpecial(){
+
+}
+
+Token Scanner::recognizeSpecial(){
+
+}
+
+void recognizeComment(){
+
+}
+
+#endif

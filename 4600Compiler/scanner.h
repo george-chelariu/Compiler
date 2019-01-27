@@ -31,7 +31,7 @@ class Scanner{
     // Constructor to initialize a scanner object with specific input
     // stream and a symbol table
 
-    Scanner(ifstream &instream, Symtable &symboltable);
+    Scanner(ifstream *instream, Symtable *symboltable);
 
     // The destructor function currently does nothing
     ~Scanner() {}

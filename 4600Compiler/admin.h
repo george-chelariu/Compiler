@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include "scanner.h"
+#include "admin.cc"
 // This is the maximum number of errors before the compiler bails out
 #define MAXERRORS 10
 

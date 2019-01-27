@@ -33,6 +33,8 @@ class Symtable{
     // May need to modify in later phases
     int insert(string s);
 
+    void insert(string s);
+
     // Return true if the table is full; false otherwise
     bool full(){return occupied == SYMTABLESIZE;}
 
