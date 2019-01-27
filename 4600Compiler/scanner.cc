@@ -16,9 +16,9 @@ Scanner::Scanner(ifstream *instream, Symtable *symboltable)
 
 Token Scanner::getToken()
 {
-    while (!inputfileptr.eof() && !(laChar == " " || laChar == "\t"))
+    while (!inputfileptr->eof() && !(laChar == ' ' || laChar == '\t'))
     {
-        inputfileptr >> laChar;
+        *inputfileptr >> laChar;
     }
     if(isAlpha(laChar))
     {
@@ -28,7 +28,7 @@ Token Scanner::getToken()
     {
         return recognizeNumeral();
     }
-    if(laChar == "$")
+    if(laChar == '$')
     {
         recognizeComment();
         Token endline(NEWLINE, -1, "nl");
@@ -44,7 +44,7 @@ Token Scanner::getToken()
 
 bool Scanner::isWhitespace (char achar)
 {
-    if (achar == " ")
+    if (achar == ' ')
         return true;
     return false;
 }
@@ -52,8 +52,10 @@ bool Scanner::isWhitespace (char achar)
 bool Scanner::isAlpha (char achar)
 {
     //A-Z and a-z find themselves between [65, 90] and [97, 122] respectively
-    if ((achar > 64 && achar < 91) || (achar > 96 && achar 123))
+    if (((achar > 64) && (achar < 91)) || ((achar > 96) && (achar < 123)))
+    {
         return true;
+    }
     return false;
 }
 
@@ -85,74 +87,76 @@ bool Scanner::isSpecial(char achar)
 
 Token Scanner::recognizeName()
 {
-    string theName = laChar;
+    string theName = "";
+    theName+=laChar;
     while(isAlpha(laChar)  || isNumeric(laChar) || laChar == '_')
     {
-        inputfileptr >> laChar;
-        theName.append(laChar);
+        *inputfileptr >> laChar;
+        theName+=laChar;
     }
-    Token recogName(ID, symtableptr.insert(theName), theName);
+    Token recogName(ID, symtableptr->insert(theName), theName);
     return recogName;
 }
 
 Token Scanner::recognizeSpecial()
 {
-    string theSpecial = laChar;
+    string theSpecial = "";
+    theSpecial+=laChar;
     // laChar moves forward no matter what
-    inputfileptr >> laChar;
+    *inputfileptr >> laChar;
     // the -> case
-    if(laChar = 62 && theSpecial = 45)
+    if(laChar == '>' && theSpecial == "-")
     {
-        theSpecial.append(laChar);
-        Token recogPt(ID, symtableptr.insert(theSpecial), theSpecial);
+        theSpecial+=laChar;
+        Token recogPt(ID, symtableptr->insert(theSpecial), theSpecial);
         return recogPt;
     }
     // the := case
-    if(laChar = 61 && theSpecial = 58)
+    if(laChar == '=' && theSpecial == ":")
     {
-        theSpecial.append(laChar);
-        Token recogColon(ID, symtableptr.insert(theSpecial), theSpecial);
+        theSpecial+=laChar;
+        Token recogColon(ID, symtableptr->insert(theSpecial), theSpecial);
         return recogColon;
     }
     // the [] case
-    if(laChar = 93 && theSpecial = 91)
+    if(laChar == ']' && theSpecial == "[")
     {
-        theSpecial.append(laChar);
-        Token recogArray(ID, symtableptr.insert(theSpecial), theSpecial);
+        theSpecial+=laChar;
+        Token recogArray(ID, symtableptr->insert(theSpecial), theSpecial);
         return recogArray;
     }
 
-    if(theSpecial = ";")
+    if(theSpecial == ";")
     {
         Token recogSpecial(SEMICOLON, -1, theSpecial);
         return recogSpecial;
     }
-    if(theSpecial = "+")
+    if(theSpecial == "+")
     {
         Token recogPlus(PLUS, -1, theSpecial);
         return recogPlus;
     }
-    if(theSpecial = "-")
+    if(theSpecial == "-")
     {
         Token recogMinus(MINUS, -1, theSpecial);
         return recogMinus;
     }
-    if(theSpecial = "*")
+    if(theSpecial == "*")
     {
         Token recogTimes(TIMES, -1, theSpecial);
         return recogTimes;
     }
-    if(theSpecial = "/")
+    if(theSpecial == "/")
     {
         Token recogDivide(DIVIDE, -1, theSpecial);
         return recogDivide;
     }
-    if(theSpecial = "(")
+    if(theSpecial == "(")
     {
         Token recogLeftP(LEFTP, -1, theSpecial);
         return recogLeftP;
     }
-    if(theSpecial = ")")
+    if(theSpecial == ")")
     {
         Token recogRightP(RIGHTP, -1, theSpecial);
         return recogRightP;
@@ -163,24 +167,25 @@ Token Scanner::recognizeSpecial()
 
 Token Scanner::recognizeNumeral()
 {
-    string theNumber = laChar;
+    string theNumber = "";
+    theNumber+=laChar;
     while(isNumeric(laChar))
     {
-        inputfileptr >> laChar;
-        theNumber.append(laChar);
+        *inputfileptr >> laChar;
+        theNumber+=laChar;
     }
     stringstream conv(theNumber);
     int val = 0;
     conv >> val;
-    Token(NUM, val, " ");
+    Token recogNum(NUM, val, " ");
     return recogNum;
 }
 
-void recognizeComment()
+void Scanner::recognizeComment()
 {
-    while(laChar != "\n")
+    while(laChar != '\n')
     {
-        inputfileptr >> laChar;
+        *inputfileptr >> laChar;
     }
 }
 
