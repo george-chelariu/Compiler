@@ -7,6 +7,7 @@
 #include "token.h"
 #include "symbol.h"
 
+
 // The original grammar for infix2postfix translator
 //
 // Stmt --> list eof
@@ -55,3 +56,4 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+

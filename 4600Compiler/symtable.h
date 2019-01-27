@@ -14,7 +14,7 @@ using namespace std;
 class Symtable{
   public:
     // create a table with SYMTABLESIZE entries
-    Symtable():occupied(0), htable(SYMTABLESIZE){}
+  Symtable():occupied(0), htable(SYMTABLESIZE){}
 
     //initialize the table with reserved words
 
@@ -33,7 +33,6 @@ class Symtable{
     // May need to modify in later phases
     int insert(string s);
 
-    void insert(string s);
 
     // Return true if the table is full; false otherwise
     bool full(){return occupied == SYMTABLESIZE;}

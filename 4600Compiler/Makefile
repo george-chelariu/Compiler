@@ -1,9 +1,7 @@
 C=gcc
 CXX=g++
 RM=rm -f
-CPPFLAGS=-g $(shell root-config --cflags)
-LDFLAGS=-g $(shell root-config --ldflags)
-LDLIBS=$(shell root-config --libs)
+
 
 SRCS=admin.cc driver.cc scanner.cc symtable.cc
 OBJS=$(subst .cc,.o,$(SRCS))

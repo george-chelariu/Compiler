@@ -32,7 +32,7 @@ public:
     int getValue()const {return svalue.value;};
     string getLexeme()const {return svalue.lexeme;}
     //print the token
-    void insert(ostream &os){os << "Token: " << spellS(sname) << "\n"
+    void insert(ostream &os){os << "Token: " << getSymbol() << "\n"
                                 << "\tAttributes: " << "\n"
                                 << "\tLexeme: " << getLexeme() << "\n"
                                 << "\tValue: " <<getValue() << endl;}

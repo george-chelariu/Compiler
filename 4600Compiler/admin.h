@@ -7,7 +7,8 @@
 #include <iostream>
 #include <fstream>
 #include "scanner.h"
-#include "admin.cc"
+#include "token.h"
+
 // This is the maximum number of errors before the compiler bails out
 #define MAXERRORS 10
 
@@ -39,7 +40,7 @@ class Administration
     ofstream *outputfileptr;
 
     //scanner
-    Scanner &scanr;
+    Scanner *scanr;
 
     //maintain the current line number
     int lineNo;

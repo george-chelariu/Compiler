@@ -11,7 +11,7 @@
 #include <string>
 #include "token.h"
 #include "symtable.h"
-#include "scanner.cc"
+
 
 using namespace std;
 

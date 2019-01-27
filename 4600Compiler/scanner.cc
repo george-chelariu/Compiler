@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "scanner.h"
-#ifndef SCANNER_H
+
 
 using namespace std;
 
@@ -25,7 +25,7 @@ Token Scanner::recognizeSpecial(){
 
 }
 
-Token Scanner::recognizeSpecial(){
+Token Scanner::recognizeNumeral(){
 
 }
 
@@ -33,4 +33,3 @@ void recognizeComment(){
 
 }
 
-#endif

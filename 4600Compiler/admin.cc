@@ -1,6 +1,7 @@
 #include "admin.h"
-#ifndef ADMIN_H
-#define ADMIN_H
+#include "token.h"
+
+
 
 Administration::Administration(ifstream& in, ofstream &out, Scanner &sc){
    outputfileptr = &out;
@@ -15,26 +16,24 @@ void Administration::error (string text){
    cout << "line: " << lineNo << " " << '\"' << text <<  '\"' << endl;
    correctline = false;
    return;
-
-
-
-
 }
 
-int Administration::scan (){
-   token holder;
+
+
+int Administration::scan(){
+   Token holder;
    while (errorCount < MAXERRORS){
-      token = scanr.gettoken();
-      if (holder.getSymbol() == "NEWLINE")
+      holder = scanr->getToken();
+      if (holder.getSymbol() == 260)
 	 NewLine();
-      else if (holder.getSymbol() == "ENDOFFILE")
+      else if (holder.getSymbol() == 262)
 	 return errorCount;
-      else if (holder.getSymbol() == "BADNUM" || "BADNAME" || "BADCHAR")
+      else if (holder.getSymbol() == 258 || 259 || 272)
 	 error(holder.getSymbol() + " ScanE");
+      holder.insert(*outputfileptr);
    }
 
    return errorCount;
 	      
 }
 
-#endif 
