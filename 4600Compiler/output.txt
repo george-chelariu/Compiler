@@ -1,0 +1,176 @@
+LINE 1 : 
+Token: 256
+	Attributes: 
+	Lexeme: This 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: is 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: a 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: test 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: file 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: that 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: mainly 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: does 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: text
+
+	Value: -1
+LINE 2 : 
+LINE 3 : 
+Token: 256
+	Attributes: 
+	Lexeme: with 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: some 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: double 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: newlines
+
+	Value: -1
+LINE 4 : 
+LINE 5 : 
+Token: 257
+	Attributes: 
+	Lexeme:  
+	Value: 1
+Token: 257
+	Attributes: 
+	Lexeme:  
+	Value: 2
+Token: 257
+	Attributes: 
+	Lexeme:  
+	Value: 3
+Token: 257
+	Attributes: 
+	Lexeme:  
+	Value: 123
+Token: 257
+	Attributes: 
+	Lexeme:  
+	Value: 456
+Token: 257
+	Attributes: 
+	Lexeme:  
+	Value: 7
+Token: 257
+	Attributes: 
+	Lexeme:  
+	Value: 8
+Token: 257
+	Attributes: 
+	Lexeme:  
+	Value: 9
+Token: 257
+	Attributes: 
+	Lexeme:  
+	Value: 0
+Token: 257
+	Attributes: 
+	Lexeme:  
+	Value: 987654321
+LINE 6 : 
+LINE 7 : 
+Token: 256
+	Attributes: 
+	Lexeme: qwertyuiopasdfghjklzxcvbnm
+
+	Value: -1
+LINE 8 : 
+LINE 9 : 
+LINE 10 : 
+Token: 256
+	Attributes: 
+	Lexeme: yellow	
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: bus;
+	Value: -1
+Token: 265
+	Attributes: 
+	Lexeme: ;
+	Value: -1
+LINE 11 : 
+Token: 256
+	Attributes: 
+	Lexeme: a1_b2
+
+	Value: -1
+LINE 12 : 
+Token: 257
+	Attributes: 
+	Lexeme:  
+	Value: 123
+Token: 256
+	Attributes: 
+	Lexeme: jumbo 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: wumbo123
+
+	Value: -1
+LINE 13 : 
+Token: 256
+	Attributes: 
+	Lexeme: []
+	Value: -1
+LINE 14 : 
+Token: 256
+	Attributes: 
+	Lexeme: sometimes 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: I 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: have 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: no 
+	Value: -1
+Token: 256
+	Attributes: 
+	Lexeme: Idea 
+	Value: -1
+LINE 15 : 
+LINE 16 : 
+Token: 256
+	Attributes: 
+	Lexeme: woop.
+	Value: -1
+LINE 17 : 
+LINE 18 : 
+LINE 19 : 

@@ -22,6 +22,7 @@ void Administration::error (string text){
 
    cout << "line: " << lineNo << " " << '\"' << text <<  '\"' << endl;
    correctline = false;
+   errorCount++;
    return;
 }
 
@@ -34,18 +35,20 @@ int Administration::scan(){
       holder = scanr->getToken();
       if (holder.getSymbol() == 260){
 	 NewLine();
-	 cout << "afjsbdfjkasf";
       }
       else if (holder.getSymbol() == 262){
-	 cout << "asfgsadf";
 	    return errorCount;
       }
-      else if (holder.getSymbol() == 258 || holder.getSymbol()==259 || holder.getSymbol()==272)
-	 error(holder.getSymbol() + " ScanE");
-      holder.insert(*outputfileptr);
+      else if (holder.getSymbol() == 258 && correctline ==true)
+	 error("BADNUM ScanE");
+      else if( holder.getSymbol()==259  && correctline == true)
+	 error("BADNAME ScanE");
+      else if( holder.getSymbol()==272 && correctline== true)
+	 error("BADCHAR ScanE");
+      if (correctline && holder.getSymbol()!=260)
+	 holder.insert(*outputfileptr);
       
    }
-   cout << errorCount;
    return errorCount;
 	      
 }

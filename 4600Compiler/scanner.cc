@@ -34,6 +34,7 @@ Token Scanner::getToken()
     {
         recognizeComment();
         Token endline(NEWLINE, -1, "nl");
+	*inputfileptr  >> laChar; 
         return endline;
     }
     if(isSpecial(laChar))
@@ -41,7 +42,7 @@ Token Scanner::getToken()
         return recognizeSpecial();
     }
     Token endtoken(ENDOFFILE, -1, "eof");
-    return endtoken;
+    return endtoken; 
 }
 
 bool Scanner::isWhitespace (char achar)
@@ -59,7 +60,7 @@ bool Scanner::isAlpha (char achar)
    
    return false;
 }
-
+ 
 bool Scanner::isNumeric(char achar)
 {
    //if achar is between the ascii values for 0 and 9 return true else false
@@ -71,7 +72,7 @@ bool Scanner::isNumeric(char achar)
 bool Scanner::isSpecial(char achar)
 {
     /*
-        if achar is any of these in the respective ascii values return true else false
+         if achar is any of these in the respective ascii values return true else false
         the symbols according to the project description
         . , ; [ ] & | ~ < = > + - * / \ ( ) := [] -> $
         the symbols according to the if condition
