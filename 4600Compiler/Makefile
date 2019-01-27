@@ -10,7 +10,7 @@ OBJS=$(subst .cc,.o,$(SRCS))
 All: driver
 
 driver: $(OBJS)
-	$(CXX) $(LDFLAGS) -o tool $(OBJS)  $(LDLIBS)
+	$(CXX) $(LDFLAGS) -o driver  $(OBJS)  $(LDLIBS)
 
 driver.o: driver.cc
 
