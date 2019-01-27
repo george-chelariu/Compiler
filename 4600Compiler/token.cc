@@ -1,6 +1,6 @@
 #include "token.h"
 
-string spellS(Symbol S){
+string Token::spellS(Symbol S){
 
    switch(S){
       case 256 :

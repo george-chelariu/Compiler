@@ -15,8 +15,7 @@ using namespace std;
 //  be defined. For example, the lexeme field of NUM
 //  operator and punctuation symbols is empty.
 
-// Prototype to spell the corresponding token
-string spellS(Symbol);
+
 
 class Token{
 public:
@@ -28,11 +27,13 @@ public:
     ~Token(){}
     //Return the terminal symbol
     Symbol getSymbol()const {return sname;}
+    // Prototype to spell the corresponding token
+    string spellS(Symbol);
     //return attribute values
     int getValue()const {return svalue.value;};
     string getLexeme()const {return svalue.lexeme;}
     //print the token
-    void insert(ostream &os){os << "Token: " << getSymbol() << "\n"
+    void insert(ostream &os){os << "Token: " << spellS(getSymbol()) << "\n"
                                 << "\tAttributes: " << "\n"
                                 << "\tLexeme: " << getLexeme() << "\n"
                                 << "\tValue: " <<getValue() << endl;}
