@@ -1,11 +1,9 @@
-#ifndef SYMTABLE_H
-#ifndef TOKEN_H
+
 #include "symtable.h"
 #include "token.h"
 
 
 void Symtable::loadResvd(){
-   
    int holder;
    holder = insert("begin");
    holder =insert("end");
@@ -40,15 +38,18 @@ int Symtable::search(string s){
 }
 
 int Symtable::insert (string s){
-   if (full()) //making sure there is a hole before doing all the math
+   if (full()){ //making sure there is a hole before doing all the math
       return -1; // -1 meaning the table is full
+   }
    else{
       int number=0; // holder for the value in the table for the string
       int hash = hashfn(s); // holder for hash value
       for(int i= 0; i< SYMTABLESIZE; i++){ // loop to look for the closest hole
 	 number += hash; // increasing thenumber
 	 number = number % SYMTABLESIZE; // making it inside the scope and adding old vaue to it
-	 if(&htable[number] == NULL){ //looking for hole
+	 if(htable[number].getLexeme()== s)
+	    return number;
+	 if(htable[number].getValue() == -1){ //looking for hole
 	    Token holder(ID, number, s);
 	    htable[number] = holder;
 	    occupied++;   // incrementing the counter
@@ -62,7 +63,7 @@ int Symtable::insert (string s){
 
 void Symtable::printTable(){
    for(int i =0; i< SYMTABLESIZE; i++){
-      if (&htable[i] != NULL) 
+      if (htable[i].getValue() != -1) 
 	 cout << "1: \"" << htable[i].getLexeme() << '\"' << endl;
    }
    return;
@@ -71,12 +72,10 @@ void Symtable::printTable(){
 
 int Symtable::hashfn(string s){
    int number=0;
-   for(size_t i=0; i<s.size();i++){
+   for(size_t i=0; i<s.size() && i<10 ;i++){
       number += s[i];
    }
 
    return number;
 }
 
-#endif
-#endif

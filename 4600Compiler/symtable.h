@@ -14,7 +14,9 @@ using namespace std;
 class Symtable{
   public:
     // create a table with SYMTABLESIZE entries
-  Symtable():occupied(0), htable(SYMTABLESIZE){}
+  Symtable():occupied(0), htable(SYMTABLESIZE){
+      loadResvd();
+   }
 
     //initialize the table with reserved words
 

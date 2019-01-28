@@ -12,37 +12,38 @@ Scanner::Scanner(ifstream *instream, Symtable *symboltable)
 {
     inputfileptr = instream;
     symtableptr = symboltable;
+    symtableptr->loadResvd();
     laChar= ' ';
     *inputfileptr >> noskipws;
 }
 
 Token Scanner::getToken()
 {
-    while (!inputfileptr->eof() && (laChar == ' ' || laChar == '\t'))
-    {
-       *inputfileptr >> laChar;
-    }
-    if(isAlpha(laChar))
-    {
-       return recognizeName();
-    }
-    if(isNumeric(laChar))
-    {
-        return recognizeNumeral();
-    }
-    if(laChar == '$')
-    {
-        recognizeComment();
-        Token endline(NEWLINE, -1, "nl");
-	*inputfileptr  >> laChar;
-        return endline;
-    }
-    if(isSpecial(laChar))
-    {
-        return recognizeSpecial();
-    }
-    Token endtoken(ENDOFFILE, -1, "eof");
-    return endtoken;
+  
+   while (!inputfileptr->eof() && (laChar == ' ' || laChar == '\t'))
+   {
+      *inputfileptr >> laChar;
+   }
+   if(isAlpha(laChar))
+   {
+      return recognizeName();
+   }
+   if(isNumeric(laChar))
+   {
+      return recognizeNumeral();
+   }
+   if(laChar == '$')
+   {
+      recognizeComment();
+      Token endline(NEWLINE, -1, "nl");
+      *inputfileptr  >> laChar; 
+      return endline;
+   }
+      return recognizeSpecial();
+ 
+ 
+  
+    
 }
 
 bool Scanner::isWhitespace (char achar)
@@ -57,10 +58,10 @@ bool Scanner::isAlpha (char achar)
     //A-Z and a-z find themselves between [65, 90] and [97, 122] respectively
    if ((achar >= 'A' && achar <= 'Z') || (achar >= 'a' && achar <=  'z'))
       return true;
-
+   
    return false;
 }
-
+ 
 bool Scanner::isNumeric(char achar)
 {
    //if achar is between the ascii values for 0 and 9 return true else false
@@ -90,14 +91,14 @@ bool Scanner::isSpecial(char achar)
 Token Scanner::recognizeName()
 {
    string theName ="";
-   theName += laChar;
-
+  
+ 
    while((isAlpha(laChar)  || isNumeric(laChar) || laChar == '_') )
     {
+       theName += laChar;
+       *inputfileptr >> laChar;
 
-        *inputfileptr >> laChar;
-        theName+=laChar;
-
+     
     }
     Token recogName(ID, symtableptr->insert(theName), theName);
     return recogName;
@@ -108,77 +109,74 @@ Token Scanner::recognizeSpecial()
    string theSpecial ="";
    theSpecial += laChar;
     // laChar moves forward no matter what
-    *inputfileptr >> laChar;
+   if (!(*inputfileptr >> laChar)){
+     
+      Token endtoken(ENDOFFILE, -1, "eof");
+      return endtoken;
+   }
     // the -> case
     if(laChar == '>' && theSpecial == "-")
     {
-        theSpecial+=laChar;
-        Token recogArrow(ARROW, symtableptr->insert(theSpecial), theSpecial);
+       theSpecial+=laChar;
+       *inputfileptr >> laChar;
+        Token recogPt(ID, symtableptr->insert(theSpecial), theSpecial);
         return recogPt;
     }
     // the := case
     if(laChar == '=' && theSpecial == ":")
     {
-        theSpecial+=laChar;
-        Token recogColon(COLON, symtableptr->insert(theSpecial), theSpecial);
+       theSpecial+=laChar;
+             *inputfileptr >> laChar;
+        Token recogColon(ID, symtableptr->insert(theSpecial), theSpecial);
         return recogColon;
     }
     // the [] case
     if(laChar == ']' && theSpecial == "[")
     {
-        theSpecial+=laChar;
-        Token recogArray(DOUBLEB, symtableptr->insert(theSpecial), theSpecial);
+       theSpecial+=laChar;
+             *inputfileptr >> laChar;
+        Token recogArray(ID, symtableptr->insert(theSpecial), theSpecial);
         return recogArray;
     }
-    //semicolons
+
     if(theSpecial == ";")
     {
         Token recogSpecial(SEMICOLON, -1, theSpecial);
         return recogSpecial;
     }
-    //plus
     if(theSpecial == "+")
     {
         Token recogPlus(PLUS, -1, theSpecial);
         return recogPlus;
     }
-    //minus
     if(theSpecial == "-")
     {
         Token recogMinus(MINUS, -1, theSpecial);
         return recogMinus;
     }
-    //times
     if(theSpecial == "*")
     {
         Token recogTimes(TIMES, -1, theSpecial);
         return recogTimes;
     }
-    //divide
     if(theSpecial == "/")
     {
         Token recogDivide(DIVIDE, -1, theSpecial);
         return recogDivide;
     }
-    //modulus
-    if(theSpecial == "\\")
-    {
-        Token recogMod(MODULUS, -1, theSpecial);
-        return recogMod;
-    }
-    //left parenthesis
     if(theSpecial == "(")
     {
         Token recogLeftP(LEFTP, -1, theSpecial);
         return recogLeftP;
     }
-    //right parenthesis
     if(theSpecial == ")")
     {
         Token recogRightP(RIGHTP, -1, theSpecial);
         return recogRightP;
+	
     }
-    //dot
+
+ //dot
     if(theSpecial == ".")
     {
        Token recogDot(DOT, -1, theSpecial);
@@ -231,14 +229,14 @@ Token Scanner::recognizeSpecial()
     {
         Token recogMore(GREATERTHAN, -1, theSpecial)
         return recogMore;
-    }
+}
 
-    //new line
+    
     if(theSpecial == "\n"){
+       
        Token newline (NEWLINE, -1, theSpecial);
        return newline;
     }
-    //default case
     Token unrecognizable(BADCHAR, -1, " ");
     return unrecognizable;
 }
