@@ -16,10 +16,10 @@ using namespace std;
 
 //      Apparently DIV and MOD are not supposed to be there because they aren't part of PL
 enum Symbol {ID=256, NUM, BADNUM, BADNAME,          // 256 - 259
-             NEWLINE, NONAME, ENDOFFILE, DIV,       // 260 - 263
-             MOD, SEMICOLON, PLUS, MINUS,           // 264 - 267
-             TIMES, DIVIDE, LEFTP, RIGHTP,          // 268 - 271
-             BADCHAR, DOT, COMMA, LEFTB, RIGHTB,    // 272 - 276
-             COLON, ARROW, DOUBLEB, OR, AND,        // 277 - 281
-             EQUALS, LESSTHAN, GREATERTHAN};        // 282 - 284
+             NEWLINE, NONAME, ENDOFFILE,            // 260 - 262
+             MODULUS, SEMICOLON, PLUS, MINUS,       // 263 - 266
+             TIMES, DIVIDE, LEFTP, RIGHTP,          // 267 - 270
+             BADCHAR, DOT, COMMA, LEFTB, RIGHTB,    // 271 - 275
+             COLON, ARROW, DOUBLEB, OR, AND,        // 276 - 280
+             EQUALS, LESSTHAN, GREATERTHAN};        // 281 - 283
 #endif // SYMBOL_H
