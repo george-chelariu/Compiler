@@ -1,0 +1,339 @@
+LINE 1 : 
+Token: ID
+	Attributes: 
+	Lexeme: This
+	Value: 101
+Token: ID
+	Attributes: 
+	Lexeme: is
+	Value: 220
+Token: ID
+	Attributes: 
+	Lexeme: a
+	Value: 97
+Token: ID
+	Attributes: 
+	Lexeme: test
+	Value: 282
+Token: ID
+	Attributes: 
+	Lexeme: file
+	Value: 109
+Token: ID
+	Attributes: 
+	Lexeme: that
+	Value: 126
+Token: ID
+	Attributes: 
+	Lexeme: mainly
+	Value: 36
+Token: ID
+	Attributes: 
+	Lexeme: does
+	Value: 120
+Token: ID
+	Attributes: 
+	Lexeme: text
+	Value: 146
+LINE 2 : 
+Token: ID
+	Attributes: 
+	Lexeme: ab
+	Value: 195
+Token: ID
+	Attributes: 
+	Lexeme: ba
+	Value: 83
+Token: ID
+	Attributes: 
+	Lexeme: ab
+	Value: 195
+Token: ID
+	Attributes: 
+	Lexeme: ba
+	Value: 83
+LINE 3 : 
+Token: ID
+	Attributes: 
+	Lexeme: with
+	Value: 137
+Token: ID
+	Attributes: 
+	Lexeme: some
+	Value: 258
+Token: ID
+	Attributes: 
+	Lexeme: double
+	Value: 21
+Token: ID
+	Attributes: 
+	Lexeme: newlines
+	Value: 255
+LINE 4 : 
+LINE 5 : 
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 1
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 2
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 3
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 123
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 456
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 7
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 8
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 9
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 0
+LINE 6 : 
+LINE 7 : 
+Token: ID
+	Attributes: 
+	Lexeme: qwertyuiopasdfghjklzxcvbnm
+	Value: 208
+LINE 8 : 
+LINE 9 : 
+Token: DOT
+	Attributes: 
+	Lexeme: .
+	Value: -1
+Token: DOT
+	Attributes: 
+	Lexeme: .
+	Value: -1
+Token: DOT
+	Attributes: 
+	Lexeme: .
+	Value: -1
+Token: COMMA
+	Attributes: 
+	Lexeme: ,
+	Value: -1
+Token: DOT
+	Attributes: 
+	Lexeme: .
+	Value: -1
+Token: ID
+	Attributes: 
+	Lexeme: hello
+	Value: 225
+Token: DOT
+	Attributes: 
+	Lexeme: .
+	Value: -1
+Token: SEMICOLON
+	Attributes: 
+	Lexeme: ;
+	Value: -1
+Token: ID
+	Attributes: 
+	Lexeme: sample_test
+	Value: 148
+LINE 10 : 
+Token: ID
+	Attributes: 
+	Lexeme: yellow
+	Value: 54
+Token: ID
+	Attributes: 
+	Lexeme: bus
+	Value: 23
+Token: SEMICOLON
+	Attributes: 
+	Lexeme: ;
+	Value: -1
+LINE 11 : 
+Token: ID
+	Attributes: 
+	Lexeme: a1_b2
+	Value: 82
+LINE 12 : 
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 123
+Token: ID
+	Attributes: 
+	Lexeme: jumbo
+	Value: 234
+Token: ID
+	Attributes: 
+	Lexeme: wumbo123
+	Value: 180
+LINE 13 : 
+Token: DOUBLEB
+	Attributes: 
+	Lexeme: []
+	Value: 184
+Token: ARROW
+	Attributes: 
+	Lexeme: ->
+	Value: 214
+Token: COLON
+	Attributes: 
+	Lexeme: :=
+	Value: 119
+Token: DOT
+	Attributes: 
+	Lexeme: .
+	Value: -1
+Token: COMMA
+	Attributes: 
+	Lexeme: ,
+	Value: -1
+Token: LEFTB
+	Attributes: 
+	Lexeme: [
+	Value: -1
+Token: RIGHTB
+	Attributes: 
+	Lexeme: ]
+	Value: -1
+Token: AND
+	Attributes: 
+	Lexeme: &
+	Value: -1
+Token: OR
+	Attributes: 
+	Lexeme: |
+	Value: -1
+Token: MINUS
+	Attributes: 
+	Lexeme: -
+	Value: -1
+Token: LESSTHAN
+	Attributes: 
+	Lexeme: <
+	Value: -1
+Token: EQUALS
+	Attributes: 
+	Lexeme: =
+	Value: -1
+Token: GREATERTHAN
+	Attributes: 
+	Lexeme: >
+	Value: -1
+Token: PLUS
+	Attributes: 
+	Lexeme: +
+	Value: -1
+Token: MINUS
+	Attributes: 
+	Lexeme: -
+	Value: -1
+Token: TIMES
+	Attributes: 
+	Lexeme: *
+	Value: -1
+Token: DIVIDE
+	Attributes: 
+	Lexeme: /
+	Value: -1
+Token: MODULUS
+	Attributes: 
+	Lexeme: \
+	Value: -1
+Token: LEFTP
+	Attributes: 
+	Lexeme: (
+	Value: -1
+Token: RIGHTP
+	Attributes: 
+	Lexeme: )
+	Value: -1
+LINE 14 : 
+Token: ID
+	Attributes: 
+	Lexeme: sometimes
+	Value: 61
+Token: ID
+	Attributes: 
+	Lexeme: I
+	Value: 73
+Token: ID
+	Attributes: 
+	Lexeme: have
+	Value: 113
+Token: ID
+	Attributes: 
+	Lexeme: no
+	Value: 221
+Token: ID
+	Attributes: 
+	Lexeme: Idea
+	Value: 64
+LINE 15 : 
+LINE 16 : 
+Token: ID
+	Attributes: 
+	Lexeme: woop
+	Value: 292
+Token: DOT
+	Attributes: 
+	Lexeme: .
+	Value: -1
+Token: ID
+	Attributes: 
+	Lexeme: idont
+	Value: 235
+Token: ID
+	Attributes: 
+	Lexeme: know
+	Value: 140
+Token: LEFTB
+	Attributes: 
+	Lexeme: [
+	Value: -1
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 1243
+Token: RIGHTB
+	Attributes: 
+	Lexeme: ]
+	Value: -1
+LINE 17 : 
+Token: MODULUS
+	Attributes: 
+	Lexeme: \
+	Value: -1
+Token: ID
+	Attributes: 
+	Lexeme: n
+	Value: 110
+LINE 18 : 
+LINE 19 : 
+LINE 20 : 
+LINE 21 : 
+LINE 22 : 
+LINE 23 : 
+LINE 24 : 
+LINE 25 : 
+LINE 26 : 
+LINE 27 : 
+Token: ID
+	Attributes: 
+	Lexeme: jkhsafkl
+	Value: 232
