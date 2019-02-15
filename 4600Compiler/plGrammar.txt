@@ -28,6 +28,7 @@ GuardedCommandList
 GuardedCommand
 Expression
 PrimaryExpression
+PrimaryOperator
 SimpleExpression
 RelationalOperator
 AddingOperator
@@ -36,7 +37,6 @@ Factor
 MultiplyingOperator
 IndexedSelector
 Numeral
-Digit
 BooleanSymbol
 Name
 
@@ -46,6 +46,8 @@ begin
 end
 ;
 const
+Letter
+Digit
 array
 [
 ]
@@ -79,3 +81,52 @@ od
 false
 true
 _
+
+NONTERMINALS THAT CAN GENERATE EMPTY STRING
+DefinitionPart
+StatementPart
+GuardedCommand
+
+The Grammer is LL(1)
+
+FIRST STATEMENTS
+first(Program) = {begin}
+first(Block) = {begin}
+first(DefinitionPart) = {const, integer, Boolean, proc}
+first(StatementPart) = {first(Statement)}
+first(Definition) = {const, integer, Boolean, proc}
+first(ConstantDefinition) = {const}
+first(VariableDefinition) = {integer, Boolean}
+first(ProcedureDefinition) = {proc}
+first(ConstantName) = {Letter}
+first(Constant) = {Digit, true, Letter}
+first(TypeSymbol) = {integer}
+first(VariableList) = {Letter}
+first(VariableName) = {Letter} // variables are IDs
+first(ProcedureName) = {proc}
+first(Statement) = {skip, read, write, Letter, call, if, do}
+first(EmptyStatement) = {skip}
+first(ReadStatement) = {read}
+first(WriteStatement) = {write}
+first(AssignStatement) = {Letter} // it ends with a VariableName
+first(ProcedureStatement) = {call}
+first(IfStatement) = {if}
+first(DoStatement) = {do}
+first(VariableAccessList) = {Letter}
+first(VariableAccess) = {Letter}
+first(ExpressionList) = { - , Digit}
+first(GuardedCommandList) = { - , Digit} //first(Expression)
+first(GuardedCommand) = { - , Digit} //first(Expression)
+first(Expression) = { - , Digit} //If no hyphen is found, it goes into factor, and first(Factor) = {Digit}
+first(PrimaryExpression) = { - , Digit}
+first(PrimaryOperator) = {&}
+first(SimpleExpression) = { - , Digit}
+first(RelationalOperator) = {<}
+first(AddingOperator) = {+}
+first(Term) = {Digit}
+first(Factor) = {Digit}
+first(MultiplyingOperator) = {*}
+first(IndexedSelector) = { [ }
+first(Numeral) = {Digit}
+first(BooleanSymbol) = {false}
+first(Name) = {Letter}
