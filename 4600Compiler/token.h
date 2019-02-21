@@ -29,6 +29,8 @@ public:
     Symbol getSymbol()const {return sname;}
     // Prototype to spell the corresponding token
     string spellS(Symbol);
+
+    string myName();
     //return attribute values
     int getValue()const {return svalue.value;};
     string getLexeme()const {return svalue.lexeme;}

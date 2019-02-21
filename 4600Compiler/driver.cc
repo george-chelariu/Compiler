@@ -6,6 +6,7 @@
 #include "symtable.h"
 #include "token.h"
 #include "symbol.h"
+#include "parser.h"
 
 
 // The original grammar for infix2postfix translator
@@ -45,17 +46,30 @@ int main(int argc, char *argv[])
 
     Symtable st;
 
+
     //create a scanner
     Scanner sc(&inputfile, &st);
 
+    //create a parcer
+    Parser pc("fuck");
+
+    
     //Get the compiler running.
-    Administration compiler(inputfile, outputfile, sc);
+    Administration compiler(inputfile, outputfile, sc, pc);
     int status = compiler.scan();
     if (status ==0)
-     cout << "Scanning successful" << endl;
-	 else
-    cerr << "Program contains scan error(s)" << endl;
-
+       cout << "Scanning successful" << endl;
+    else{
+       cerr << "Program contains scan error(s)" << endl;
+       return 0;
+    }
+    status = compiler.parse();
+    if (status == 0)
+       cout << "parsing successful" << endl;
+    else{
+       cerr << "program contains Parse error(s)" << endl;
+       return 0;
+    }
     return 0;
 }
 

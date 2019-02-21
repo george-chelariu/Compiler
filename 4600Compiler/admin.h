@@ -8,6 +8,7 @@
 #include <fstream>
 #include "scanner.h"
 #include "token.h"
+#include "parser.h"
 
 // This is the maximum number of errors before the compiler bails out
 #define MAXERRORS 10
@@ -21,7 +22,7 @@ class Administration
 {
   public:
     // set up input and output files for scanning
-    Administration(ifstream& in, ofstream &out, Scanner &sc);
+   Administration(ifstream& in, ofstream &out, Scanner &sc, Parser &pc);
 
     ~Administration() {}
 
@@ -34,6 +35,9 @@ class Administration
     //call scanner from here
     int scan();
 
+    //call parser from here
+    int parse();
+
   private:
 
     //output file
@@ -41,6 +45,9 @@ class Administration
 
     //scanner
     Scanner *scanr;
+
+    //parser
+    Parser *parsr;
 
     //maintain the current line number
     int lineNo;

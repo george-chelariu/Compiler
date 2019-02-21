@@ -44,7 +44,7 @@ string Token::spellS(Symbol S){
         case 275 :
             return "RIGHTB";
         case 276 :
-            return "COLON";
+            return "ASSIGN";
         case 277 :
             return "ARROW";
         case 278 :
@@ -56,11 +56,17 @@ string Token::spellS(Symbol S){
         case 281 :
             return "EQUALS";
         case 282 :
-            return "LESSTHAN";
-        case 283 :
-            return "GREATERTHAN";
+	   return "LESSTHAN";
+      case 283 :
+	   return "GREATERTHAN";
+      case 284 :
+	 return	 "NOT";
 
    }
    return "error: no symbol name";
 }
 
+string Token::myName(){
+   return spellS(getSymbol());
+
+}

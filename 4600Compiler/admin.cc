@@ -3,12 +3,13 @@
 
 
 
-Administration::Administration(ifstream& in, ofstream &out, Scanner &sc){
+Administration::Administration(ifstream& in, ofstream &out, Scanner &sc, Parser &pc){
    outputfileptr = &out;
    scanr= &sc;
    lineNo = 0;
    correctline = true;
    errorCount = 0;
+   parsr= &pc;
 }
 
 
@@ -26,8 +27,6 @@ void Administration::error (string text){
    return;
 }
 
-
-
 int Administration::scan(){
    Token holder;
    NewLine();
@@ -43,12 +42,17 @@ int Administration::scan(){
 	 error("BADNUM ScanE");
       else if( holder.getSymbol()==259  && correctline == true)
 	 error("BADNAME ScanE");
-      else if( holder.getSymbol()==272 && correctline== true)
+      else if( holder.getSymbol()==271 && correctline== true)
 	 error("BADCHAR ScanE");
-      if (correctline && holder.getSymbol()!=260)
+      if (correctline && holder.getSymbol()!=260){
 	 holder.insert(*outputfileptr);
-      
+	 parsr->insert(holder, lineNo);
+      }
    }
    return errorCount;
 	      
+}
+
+int Administration::parse(){
+   return  (parsr->work());
 }

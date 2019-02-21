@@ -20,6 +20,6 @@ enum Symbol {ID=256, NUM, BADNUM, BADNAME,          // 256 - 259
              MODULUS, SEMICOLON, PLUS, MINUS,       // 263 - 266
              TIMES, DIVIDE, LEFTP, RIGHTP,          // 267 - 270
              BADCHAR, DOT, COMMA, LEFTB, RIGHTB,    // 271 - 275
-             COLON, ARROW, DOUBLEB, OR, AND,        // 276 - 280
-             EQUALS, LESSTHAN, GREATERTHAN};        // 281 - 283
+             ASSIGN, ARROW, DOUBLEB, OR, AND,        // 276 - 280
+             EQUALS, LESSTHAN, GREATERTHAN, NOT};        // 281 - 283
 #endif // SYMBOL_H

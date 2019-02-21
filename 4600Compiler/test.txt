@@ -1,25 +1,42 @@
-This is a test file that mainly does text
+begin				  $program -> block
+				  $block -> defpart, statpart 
+const freefall = 123;          	  $const definition
+integer num1, num2;	          $ varible definition
+Boolean flag; 		  	  $ varible def 2
+integer array listOfStuff1 [12];	  $vaible def 3 array
+integer array listOfStuff2 [true];
+integer array listOfStuff3 [name];
 
-with some double newlines
+proc functionName begin	  	  $procedure def
+Boolean flag2; 	  		  $defenition part of procedudure
 
-1 2 3 123 456 7 8 9 0 0987654321
+call functionName;		 $stament part of proceddure
+end; 		  		 $end of procedure
+Boolean test;
+skip; 				 $ empty statment
 
-qwertyuiopasdfghjklzxcvbnm
-$sometimes you dont want people to know
-...,.hello.;sample_test
-	yellow	bus;
-a1_b2
-123jumbo wumbo123
-[] -> := . , : [ ] & | - < = > + - * / \ ( ) 
-sometimes I have no Idea $and this should be hidden
+read listOfStuff [2];		 $read statment
 
-woop.idont know[1243]
-\n
+write num1, num2;		 $write statment
 
-{
+num1, num2 := 1 + 1;		 $assign statment
+
+call functionName;		 $procedure statment
+
+read test1 [ q & 1 ];
+read test2 [ q & 1 = 1];
+read test3 [ q & 1 < -1 + 1];
+read test4 [ q & 1 > -1 - 1 * 1];
+read test5 [ q & 1 > -1 - 1 / true];
+read test6 [ q & 1 > -1 - 1 \ words];
+read test7 [ q & 1 > -1 - 1 \ ~ words];
+read test8 [ q & 1 > -1 - 1 \ ( q & 1 > -1 - 1 \ words)];
+     	       	     	      	 $testing all forms of expressions
 
 
+if false | true -> read listOfStuff; $if statment
+[] true | false-> num2 := 4; fi;     $2nd half of if should not effect things
 
+do false & true -> read listOfStuff; [] true | false-> num2 := 4; od; $do statment
 
-
-jkhsafkl
+end. $ends program

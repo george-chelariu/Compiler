@@ -3,17 +3,19 @@ CXX=g++
 RM=rm -f
 
 
-SRCS=admin.cc driver.cc scanner.cc symtable.cc token.cc
+SRCS=admin.cc driver.cc parser.cc scanner.cc symtable.cc token.cc
 OBJS=$(subst .cc,.o,$(SRCS))
 
 
 All: driver
 
 driver: $(OBJS)
-	$(CXX) $(LDFLAGS) -o driver  $(OBJS)  $(LDLIBS)
+	$(CXX) $(LDFLAGS) -o driver  $(OBJS)  $(LDLIBS) $(clean)
 
 
 driver.o: driver.cc
+
+parser.o: parser.h parser.cc
 
 scanner.o: scanner.h scanner.cc
 
