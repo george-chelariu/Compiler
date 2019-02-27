@@ -51,25 +51,18 @@ int main(int argc, char *argv[])
     Scanner sc(&inputfile, &st);
 
     //create a parcer
-    Parser pc("fuck");
+    Parser pc("a");
 
     
     //Get the compiler running.
     Administration compiler(inputfile, outputfile, sc, pc);
-    int status = compiler.scan();
+    int status = compiler.parse();
     if (status ==0)
-       cout << "Scanning successful" << endl;
+       cout << "Scanning and parsing successful" << endl;
     else{
-       cerr << "Program contains scan error(s)" << endl;
+       cerr << "Program contains error(s)" << endl;
        return 0;
     }
-    status = compiler.parse();
-    if (status == 0)
-       cout << "parsing successful" << endl;
-    else{
-       cerr << "program contains Parse error(s)" << endl;
-       return 0;
-    }
-    return 0;
+
 }
 

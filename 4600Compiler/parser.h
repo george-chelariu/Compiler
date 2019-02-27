@@ -2,18 +2,20 @@
 #define PARSER_H
 
 #include "token.h"
+#include "admin.h"
 #include <iostream>
 #include <vector>
 #include <string>
 
 using namespace std;
+class Administration;
 
 class Parser{
   public:
 
    /* two constructions even though the string added in one does nothing was not letting me procide with only one when it set some values to 0
     */
-   Parser() {};
+   Parser(){}
    Parser(string h);
 
    ~Parser(){}
@@ -24,11 +26,11 @@ class Parser{
       when also skipping all comments newlines etc so we only get useful ones
       takes in line as well so that when making an error reporst we say what line the error is on
    */
-   void insert(Token holder, int line);
+  
 
    /* main function that starts all the work it does returns a int that used to be an error count, but now its 0 if good 1 if errors are there
     */
-   int work();
+   void work(Administration& ad);
 
 
   
@@ -90,22 +92,9 @@ class Parser{
    // assigning values to varibles
    void assignState();
 
-
-   
-   // holer for all tokens in the program
-   vector<Token> input;
-   // added in late to handle the error line number display
-   //works by this one holing the line umber of the equivalant Token
-   vector<int> lineNo;
-   // size of the input vector
-   int size;
-   // point in the vector that we are at
-   int point;
-   // to ensure only one error is displayed
-   bool errorcount;
-   //holders for the tokens so that everything else is simpler to read
-   // this is what we compaire to everything
-   string currentName, nextName;
-   string currentLex, nextLex;
+   Token input;
+   string currentName;
+   string currentLex;
+   Administration  *admin;
 };
 #endif // PARSER_H

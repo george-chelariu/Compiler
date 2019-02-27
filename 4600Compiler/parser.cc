@@ -2,49 +2,30 @@
 
 #include <iostream>
 #include "parser.h"
+#include "admin.h"
 
 using namespace std;
 Parser::Parser(string h){
-   size = 0;
-   point = 0;
-   errorcount =false;
-}
-void Parser::insert(Token holder,  int line){
-   input.push_back( holder);
-   lineNo.push_back(line);
-   size++;
-   return;
 }
 
+
 void Parser::adv(){
-   if (point+1> size)
-      return;
-   currentName = input[point].myName();
-   currentLex = input[point].getLexeme();
-   if (point + 2 < size){
-      nextName = input[point+1].myName();
-      nextLex = input[point+1].getLexeme();
-   }
-   
-   point++;
+   input = admin-> get();
+   currentName = input.myName();
+   currentLex = input.getLexeme();
    return;
 }
 
 void Parser::error(){
-   if (errorcount == false){
-      errorcount= true;
-      cout << "This lexeme caused the error : " << endl;
-      cout << input[point -1 ].getLexeme() << endl << input[point-1].myName() << endl;
-      cout << "On line : " << lineNo[point-1] << endl;
-      adv();
-   }
+   admin->ParseError( currentLex);
    return;
    
 }
    
    
 
-int Parser::work(){
+void Parser::work(Administration &ad){
+   admin = &ad;
 // to actually parse return 1 when errors, if good return 0
    //can also return the amount of errors found if we go that way
    adv();
@@ -52,7 +33,7 @@ int Parser::work(){
    adv();
    if(currentLex != ".")
       error();
-   return errorcount;
+   return;
 }
 
 void Parser::block(){
@@ -157,12 +138,12 @@ void Parser::varibleDef(){
 
 void Parser::varList(){
    name();
-   while( nextLex == ","){
-      adv();
+   adv();
+   while( currentLex == ","){
       adv();
       name();
+      adv();
    }
-   adv();
    return;
 }
 

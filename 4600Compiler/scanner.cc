@@ -46,6 +46,8 @@ Token Scanner::getToken()
     
 }
 
+
+
 bool Scanner::isWhitespace (char achar)
 {
     if (achar == ' ')

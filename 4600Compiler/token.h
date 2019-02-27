@@ -29,7 +29,7 @@ public:
     Symbol getSymbol()const {return sname;}
     // Prototype to spell the corresponding token
     string spellS(Symbol);
-
+    //helperfunction to return the spelled out token
     string myName();
     //return attribute values
     int getValue()const {return svalue.value;};

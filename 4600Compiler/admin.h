@@ -12,7 +12,7 @@
 
 // This is the maximum number of errors before the compiler bails out
 #define MAXERRORS 10
-
+class Parser;
 // each phase has its kind of errors
 enum errorkind {ScanE, ParseE, ScopeE, TypeE};
 
@@ -26,11 +26,9 @@ class Administration
 
     ~Administration() {}
 
-    // begin a new line of input
-    void NewLine();
 
-    // Error function for the phases
-    void error (string text);
+    Token get();
+
 
     //call scanner from here
     int scan();
@@ -38,7 +36,15 @@ class Administration
     //call parser from here
     int parse();
 
+    void ParseError (string text);
+  
   private:
+
+  // Error function for the phases
+    void error (string text);
+
+    // begin a new line of input
+    void NewLine();
 
     //output file
     ofstream *outputfileptr;
