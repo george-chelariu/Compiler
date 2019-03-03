@@ -11,13 +11,12 @@ ConstantName
 Constant
 TypeSymbol
 VariableList
-VariableName
 ProcedureName
 Statement
 EmptyStatement
 ReadStatement
 WriteStatement
-AssignStatement
+AssignmentStatement
 ProcedureStatement
 IfStatement
 DoStatement
@@ -38,95 +37,253 @@ MultiplyingOperator
 IndexedSelector
 Numeral
 BooleanSymbol
-Name
 
 TERMINALS
-.
+. (period)
 begin
 end
-;
+variablename //they're just IDs
+; (semicolon)
 const
-Letter
-Digit
+letter
+digit
+name
 array
-[
-]
+[ (leftb)
+] (rightb)
 integer
-Boolean
-,
+boolean
+, (comma)
 proc
 skip
 read
 write
-:=
+:= (assign)
 call
 if
 fi
 do
 od
-[]
-->
-&
-|
-<
->
--
-+
-*
-/
-\
-(
-)
-~
+[] (square)
+-> (arrow)
+& (and)
+| (or)
+< (lessthan)
+> (greaterthan)
+- (minus)
++ (plus)
+* (star)
+/ (divide)
+\ (modulus)
+( (leftb)
+) (rightb)
+~ (tilde)
 false
 true
-_
+_ (underscore)
 
-NONTERMINALS THAT CAN GENERATE EMPTY STRING
-DefinitionPart
-StatementPart
-GuardedCommand
+PRODUCTIONS 
+// E represents epsilon with extra productions added for [] and {} operations
+Program -> Block period.
+Block -> begin DefinitionPart StatementPart end.
+DefinitionPart -> Definition DefinitionPart semicolon | E.
+Definition -> ConstantDefinition | VariableDefinition | ProcedureDefinition.
+ConstantDefinition -> const ConstantName equals Constant.
+VariableDefinition -> TypeSymbol FtypeSymbol.
+FtypeSymbol -> VariableList | array VariableList leftb Constant rightb.
+TypeSymbol -> integer | boolean.
+VariableList -> variablename MoreVariable.
+MoreVariable -> comma VariableList | E.
+ProcedureDefinition -> proc ProcedureName Block.
+StatementPart -> Statement StatementPart semicolon | E.
+Statement -> EmptyStatement | ReadStatement | WriteStatement | AssignmentStatement | ProcedureStatement | IfStatement | DoStatement.
+EmptyStatement -> skip.
+ReadStatement -> read VariableAccessList.
+VariableAccessList -> VariableAccess EVariable.
+EVariable -> comma VariableAccessList | E.
+WriteStatement -> write ExpressionList.
+AssignmentStatement -> VariableAccessList assign ExpressionList.
+ExpressionList -> Expression EExpression.
+EExpression -> comma ExpressionList | E.
+ProcedureStatement -> call ProcedureName.
+IfStatement -> if GuardedCommandList fi.
+DoStatement -> do GuardedCommandList od.
+GuardedCommandList -> GuardedCommand EGuardedCommand.
+EGuardedCommand -> square GuardedCommand EGuardedCommand | E.
+GuardedCommand -> Expression arrow StatementPart.
+Expression -> PrimaryExpression EPrimaryExpression.
+EPrimaryExpression -> PrimaryOperator PrimaryExpression EPrimaryExpression | E.
+PrimaryOperator -> and | or.
+PrimaryExpression -> SimpleExpression RelationExpression.
+RelationExpression -> RelationalOperator SimpleExpression | E.
+RelationalOperator -> lessthan | equals | greaterthan.
+SimpleExpression -> PositiveNegative Term Arithmetic.
+PositiveNegative -> minus | E.
+Arithmetic -> AddingOperator Term Arithmetic | E.
+AddingOperator -> plus | minus.
+Term -> Factor Geometric.
+Geometric -> MultiplyingOperator Factor Geometric | E.
+MultiplyingOperator -> star | divide | modulus.
+Factor -> Constant | VariableAccess | leftp Expression rightp | tilde Factor.
+VariableAccess -> variablename ZeroOrOne.
+ZeroOrOne -> IndexedSelector | E.
+IndexedSelector -> leftb Expression rightb.
+Constant -> Numeral | BooleanSymbol | ConstantName.
+Numeral -> digit LongerNumber.
+LongerNumber -> digit LongerNumber | E.
+BooleanSymbol -> false | true.
+Name -> letter LongerID.
+LongerID -> letter LongerID | digit LongerID | underscore LongerID | E.
 
-The Grammer is LL(1)
+Having done a bit of left factoring, the grammar is LL(1)
 
-FIRST STATEMENTS
+NONTERMINALS THAT CAN GENERATE THE EMPTY STRING
+DefinitionPart MoreVariable StatementPart Evariable Eexpression EguardedCommand EprimaryExpression RelationExpression PositiveNegative Arithmetic Geometric ZeroOrOne LongerNumber LongerID
+
+FIRST SETS
 first(Program) = {begin}
 first(Block) = {begin}
-first(DefinitionPart) = {const, integer, Boolean, proc}
-first(StatementPart) = {first(Statement)}
-first(Definition) = {const, integer, Boolean, proc}
+first(DefinitionPart) = {const, integer, boolean, proc}
+first(StatementPart) = {skip, read, write, letter, call, if, do}
+first(Definition) = {const, integer, boolean, proc}
 first(ConstantDefinition) = {const}
-first(VariableDefinition) = {integer, Boolean}
+first(VariableDefinition) = {integer, boolean}
 first(ProcedureDefinition) = {proc}
-first(ConstantName) = {Letter}
-first(Constant) = {Digit, true, Letter}
-first(TypeSymbol) = {integer}
-first(VariableList) = {Letter}
-first(VariableName) = {Letter} // variables are IDs
+first(ConstantName) = {letter}
+first(Constant) = {digit, true, letter}
+first(TypeSymbol) = {integer, boolean}
+first(VariableList) = {variablename}
 first(ProcedureName) = {proc}
-first(Statement) = {skip, read, write, Letter, call, if, do}
+first(Statement) = {skip, read, write, letter, call, if, do}
 first(EmptyStatement) = {skip}
 first(ReadStatement) = {read}
 first(WriteStatement) = {write}
-first(AssignStatement) = {Letter} // it ends with a VariableName
+first(AssignmentStatement) = {variablename} 
 first(ProcedureStatement) = {call}
 first(IfStatement) = {if}
 first(DoStatement) = {do}
-first(VariableAccessList) = {Letter}
-first(VariableAccess) = {Letter}
-first(ExpressionList) = { - , Digit}
-first(GuardedCommandList) = { - , Digit} //first(Expression)
-first(GuardedCommand) = { - , Digit} //first(Expression)
-first(Expression) = { - , Digit} //If no hyphen is found, it goes into factor, and first(Factor) = {Digit}
-first(PrimaryExpression) = { - , Digit}
-first(PrimaryOperator) = {&}
-first(SimpleExpression) = { - , Digit}
-first(RelationalOperator) = {<}
-first(AddingOperator) = {+}
-first(Term) = {Digit}
-first(Factor) = {Digit}
-first(MultiplyingOperator) = {*}
-first(IndexedSelector) = { [ }
-first(Numeral) = {Digit}
+first(VariableAccessList) = {letter}
+first(VariableAccess) = {letter}
+first(ExpressionList) = {minus, digit, leftp, tilde, variablename, false, true}
+//first(Expression)
+first(GuardedCommandList) = {minus, digit, leftp, tilde, variablename, false, true}
+//first(Expression)
+first(GuardedCommand) = {minus, digit, leftp, tilde, variablename, false, true}
+//It goes into factor if no minus is found
+first(Expression) = {minus, digit, leftp, tilde, variablename, false, true}
+first(Factor) = {digit}
+first(PrimaryExpression) = {minus, leftp, tilde, variablename, digit, false, true}
+first(PrimaryOperator) = {and, or}
+first(SimpleExpression) = { minus , digit}
+first(RelationalOperator) = {lessthan}
+first(AddingOperator) = {plus, minus}
+first(Term) = {digit, false, true, leftp, tilde, variablename}
+first(Factor) = {leftp, tilde, digit, false, true}
+first(MultiplyingOperator) = {star, divide, modulus}
+first(IndexedSelector) = {leftb}
+first(Numeral) = {digit}
 first(BooleanSymbol) = {false}
-first(Name) = {Letter}
+first(Name) = {letter}
+first(FTypeSymbol) = {array}
+first(EVariable) = {comma}
+first(MoreVariable) = {comma}
+first(EExpression) = {comma}
+first(EGuardedCommand) = {square}
+first(EPrimaryExpression) = {and, or}
+first(Arithmetic) = {plus, minus}
+first(Geometric) = {star, divide, modulus}
+first(LongerNumber) = {digit}
+first(LongerID) = {letter}
+
+
+FOLLOW SETS //ENDOFFILE is $
+
+follow(Program) = {$}
+follow(Block) = {const proc integer boolean semicolon period}
+follow(DefinitionPart) = {skip, read, write, call, if, do, end, semicolon}
+follow(StatementPart) = {square, fi, od, end, semicolon}
+follow(Definition) = {const, proc, integer, boolean, semicolon}
+follow(ConstantDefinition) = {const, proc, integer, boolean, semicolon}
+follow(VariableDefinition) = {const, proc, integer, boolean, semicolon}
+follow(ProcedureDefinition) = {const, proc, integer, boolean, semicolon}
+follow(ConstantName) = {star, divide, modulus, plus, minus, lessthan, greaterthan, 
+				and, or, comma, arrow, rightp, skip, read, write, call, if, 
+				do, rightb, equals, const, proc, integer, boolean, 
+				semicolon}
+follow(Constant) = {star, divide, modulus, plus, minus, lessthan, greaterthan, 
+				and, or, comma, arrow, rightp, skip, read, write, call, if, 
+				do, rightb, equals, const, proc, integer, boolean, 
+				semicolon}
+follow(TypeSymbol) = {array, variablename}
+follow(VariableList) = {leftb, const, proc, integer, boolean, semicolon}
+follow(ProcedureName) = {skip, read, write, call, if, do, semicolon, begin}
+follow(Statement) = {skip, read, write, call, if, do, semicolon}
+follow(EmptyStatement) = {skip, read, write, if, do, semicolon}
+follow(ReadStatement) = {skip, read, write, if, do, semicolon}
+follow(WriteStatement) = {skip, read, write, if, do, semicolon}
+follow(AssignmentStatement) = {skip, read, write, call, if, do, variablename, 
+					 semicolon}
+follow(ProcedureStatement) = {skip, read, write, call, if, do, variablename, 
+					semicolon}
+follow(IfStatement) = {skip, read, write, call, if, do, variablename, 
+					semicolon}
+follow(DoStatement) = {skip, read, write, call, if, do, variablename, 
+					semicolon}
+follow(VariableAccessList) = {assign, skip, read, write, call, if, do, 
+					variablename,semicolon}
+follow(VariableAccess) = {star, divide, modulus, minus, lessthan, equals, 
+				  greaterthan, and, or, arrow, rightp, rightb, assign, 
+				  comma, skip, read, write, call, if, do, variablename, 
+				  semicolon}
+follow(ExpressionList) = {skip, read, write, call, if, do, variablename, semicolon}
+follow(GuardedCommandList) = {fi, od}
+follow(GuardedCommand) = {square, fi, od}
+follow(Expression) = {comma, arrow, rightb, skip, read, write, call, if, do, 
+			    variablename, semicolon}
+follow(PrimaryExpression) = {and, or, coma, arrow, rightp, rightb, skip, read, 
+				     write, call, if, do, variablename, semicolon}
+follow(PrimaryOperator) = {minus, leftp, tilde, variablename, digit, false, true}
+follow(SimpleExpression) = {lessthan, equals, greaterthan, and, or, comma, arrow, 
+				    rightp, rightb, skip, read, write, call, if, do, 
+				    variablename, semicolon}
+follow(RelationalOperator) = {minus, leftp, tilde, variablename, digit, false, 
+					true}
+follow(AddingOperator) = {leftp, tilde, variablename, digit, false, true}
+follow(Term) = {plus, minus, lessthan, equals, greaterthan, and, or, comma, 
+		    arrow, rightp, rightb, skip, read, write, call, if, do, 
+		    semicolon}
+follow(Factor) = {star, divide, modulus, plus, minus, lessthan, equals, 
+			greaterthan, and, or, comma, arrow, rightp, rightb, skip, read, 
+			write, call, if, do, variablename, semicolon}
+follow(MultiplyingOperator) = {leftp, tilde, variablename, digit, false, true}
+follow(IndexedSelector) = {star, divide, modulus, plus, minus, lessthan, equals, 
+				   greaterthan, and, or, arrow, rightp, rightb, assign, 
+				   comma, skip, read, write, call, if, do, variablename, 
+				   semicolon}
+follow(Numeral) = {star, divide, modulus, plus, minus, lessthan, greaterthan, 
+				and, or, comma, arrow, rightp, skip, read, write, call, if, 
+				do, rightb, equals, const, proc, integer, boolean, 
+				semicolon}
+follow(BooleanSymbol) = {star, divide, modulus, plus, minus, lessthan, greaterthan, 
+				and, or, comma, arrow, rightp, skip, read, write, call, if, 
+				do, rightb, equals, const, proc, integer, boolean, 
+				semicolon}
+follow(Name) = {letter, digit, underscore}
+follow(LongerNumber) = {star, divide, modulus, plus, minus, lessthan, greaterthan, 
+				and, or, comma, arrow, rightp, skip, read, write, call, if, 
+				do, rightb, equals, const, proc, integer, boolean, 
+				semicolon}
+follow(FTypeSymbol) = {const, proc, integer, boolean, semicolon}
+follow(EVariable) = {assign, skip, read, write, call, if, do, semicolon}
+follow(MoreVariable) = {leftb, const, proc, integer, boolean, semicolon}
+follow(EExpression) = {skip, read, write, call, if, do, variablename, semicolon}
+follow(EGuardedCommand) = {fi, od}
+follow(EPrimaryExpression) = {comma, arrow, rightp, rightb, skip, read, write, 
+					call, if, do, semicolon}
+follow(Arithmetic) = {lessthan, equals, greaterthan, and, or, comma, arrow, rightp, 
+			    rightb, skip, read, write, call, if, do, semicolon}
+follow(Geometric) = {plus, minus, lessthan, equals, greaterthan, and, or, comma, 
+			   arrow, rightp, rightb, skip, read, write, call, if, do, 
+			   semicolon}
+follow(LongerID) = {letter, digit, underscore}
+
