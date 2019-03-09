@@ -21,5 +21,8 @@ enum Symbol {ID=256, NUM, BADNUM, BADNAME,          // 256 - 259
              TIMES, DIVIDE, LEFTP, RIGHTP,          // 267 - 270
              BADCHAR, DOT, COMMA, LEFTB, RIGHTB,    // 271 - 275
              ASSIGN, ARROW, DOUBLEB, OR, AND,        // 276 - 280
-             EQUALS, LESSTHAN, GREATERTHAN, NOT};        // 281 - 283
+             EQUALS, LESSTHAN, GREATERTHAN, NOT,     // 281 - 284
+	     BEGIN, END, CONST, ARRAY, INT, BOOLEAN, //285 - 290
+	     PROC, SKIP, READ, WRITE, CALL,         //291 - 295
+	     IF, DO, FI,OD, FALSE, TRUE};           //296 - 301
 #endif // SYMBOL_H

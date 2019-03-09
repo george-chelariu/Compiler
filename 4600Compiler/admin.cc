@@ -25,10 +25,11 @@ void Administration:: ParseError(string text){
    correctline = true;
 }
 void Administration::error (string text){
-
-   cout << "line: " << lineNo << " " << '\"' << text <<  '\"' << endl;
-   correctline = false;
-   errorCount++;
+   if (errorCount < MAXERRORS){
+      cout << "line: " << lineNo << " " << '\"' << text <<  '\"' << endl;
+      correctline = false;
+      errorCount++;
+   }
    return;
 }
 

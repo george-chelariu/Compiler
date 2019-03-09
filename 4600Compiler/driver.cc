@@ -63,6 +63,6 @@ int main(int argc, char *argv[])
        cerr << "Program contains error(s)" << endl;
        return 0;
     }
-
+    return 0;
 }
 

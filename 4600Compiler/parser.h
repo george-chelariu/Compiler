@@ -3,6 +3,7 @@
 
 #include "token.h"
 #include "admin.h"
+#include "symbol.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -35,66 +36,74 @@ class Parser{
 
   
   private:
-   /* if no error has been reported will cout what info about the token that did it like name Lexeme and line to help figure out the error*/
-   void error();
+   // error that returns void for things like bool name() where the are just looking at if something is happing and dont make anything at that level
+   void Verror();
+   // the main error function that looks for Lex first then Name and returns when it has found a Token that is in the follow set, returns with that tokens depth
+   int error();
+   //a double loop function seeing if the current token is in the follow vectors, looking at Lex then name
+   int stop();
    // advances the two Token holders so that we can go father through the file 1 token at a time
    void adv();
    // handles the block portion of the program always starting with begin and ending with end
-   void block();
+   bool block();
    //the area of the program when we define everything all of them end with a ; and will repeat until you call something in the statment part
-   void defnPart();
+   bool defnPart();
    // handles the definitions of constant varibleswith assigning them varibles as well
-   void constDef();
+   bool constDef();
    // helper function to see if a name is Valid
-   void name();
+   bool name();
    // helper function to see if what we are looking at, is a boolean definition name or number
-   void constant();
+   bool constant();
    //handles the definition of procedures by calling block() withen itself
-   void procDef();
+   bool procDef();
    // handles the creation of varibles wither that be a series of int, or booleans, can also handle arrays ( no assigning)
-   void varibleDef();
+   bool varibleDef();
    //helper function to handle a group of names
-   void varList();
+   bool varList();
    // statement part of the program
-   void statePart();
+   bool statePart();
    // empty states skips everything til the statment is done
-   void emptyState();
+   bool emptyState();
    // read function can accesses varibles from a list or an array or both at the same time
-   void readState();
+   bool readState();
    //helper function for accsessing lists of varibles 
-   void varAccList();
+   bool varAccList();
    // helper function for acessessing single varibles
-   void varAcc();
+   bool varAcc();
    // helper function for handling all exprestions
-   void expression();
+   bool expression();
    // helper function for handling all prime expretions
-   void primeExp();
+   bool primeExp();
    // helper function for handling all simple exprestions
-   void simpleExp();
+   bool simpleExp();
    // helper functions for handling all terms
-   void term();
+   bool term();
    // helper function for handling all factors
-   void factor();
+   bool factor();
    //write statement handler, uses exprestions lists
-   void writeState();
+   bool writeState();
    // exprestion list helper function, lets a series of expretions work
-   void expList();
+   bool expList();
    //procedure statment, helps call any defined procidures eventually
-   void precedureState();
+   bool precedureState();
    // if statment handler making sure if statment are handled properally
-   void ifState();
+   bool ifState();
    // a list of exprestions and statments, mainly a helper function
-   void guardedComList();
+   bool guardedComList();
    //a comand by the logic of an exprestion -> then statments to follow up with
-   void guardedCom();
+   bool guardedCom();
    // very much like the if statments
-   void doState();
+   bool doState();
    // assigning values to varibles
-   void assignState();
+   bool assignState();
 
+   //holds the follow set when that thing is a varible thing but has a constant Lex, like "ID" "NUM" "SEMICOLON"
+   vector <Symbol> stopName;
+   // the token that we are currently at
    Token input;
-   string currentName;
-   string currentLex;
+   // two holder varibles to help readability so its not input.spellS a lot
+   Symbol current;
+   // a pointer to admin so we can get it to get tokens and report errors to it
    Administration  *admin;
 };
 #endif // PARSER_H
