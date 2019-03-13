@@ -26,7 +26,7 @@ typedef struct TableEntry
       
       //bool define inserts a TableEntry with necessary field values if index
       //doesn't exist and return true; else return false
-      bool define (int ind, mkind kind, int size, mType type, int val);
+      bool define (int ind, mkind kind, int size, mType type, int val, int block);
       //all the fields of TableEntry get passed within the params of define
       
       TableEntry find (int ind, bool& error);
