@@ -4,6 +4,7 @@
 #include "token.h"
 #include "admin.h"
 #include "symbol.h"
+#include "blocktable.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -17,7 +18,7 @@ class Parser{
    /* two constructions even though the string added in one does nothing was not letting me procide with only one when it set some values to 0
     */
    Parser(){}
-   Parser(string h);
+   Parser(BlockTable h);
 
    ~Parser(){}
 
@@ -105,5 +106,7 @@ class Parser{
    Symbol current;
    // a pointer to admin so we can get it to get tokens and report errors to it
    Administration  *admin;
+
+   BlockTable Table;
 };
 #endif // PARSER_H

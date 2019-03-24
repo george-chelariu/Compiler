@@ -11,7 +11,8 @@ using namespace std;
 
 //constructor that gets called when we actually do things with it
 //errors out without it
-Parser::Parser(string h){
+Parser::Parser(BlockTable h){
+   Table =h;
 }
 
 // function that gets the next token and puts the info in the holders
@@ -59,12 +60,20 @@ int Parser::stop(){
    }
    return 0;
 }
+void Parser::typeError(){
+   admin->ParseError("ScanE");
+   return;
 
+}
 
 void Parser::work(Administration &ad){
 // to get admin to report errors and get tokens
    //done this way as parser is created before the admin
    admin = &ad;
+   if (!Table.newBlock()){
+      typeError();
+      return;
+   }
    stopName.push_back(ENDOFFILE); //setting up part of the follow sets
    stopName.push_back(DOT);  
    adv(); // loads first Token
@@ -75,7 +84,10 @@ void Parser::work(Administration &ad){
       return;
      
    }
- 
+   if (!Table.endBlock()){
+      typeError();
+      return;
+   }
    adv();
 // should be on to the last token as only way it gets here is if block was good so looking at a end
 
@@ -218,7 +230,7 @@ bool Parser::defnPart(){
       }
 
    }
-   else if( current == BOOLEAN || current == INT){
+   else if(current == BOOLEAN || current == INT){
       if(!varibleDef()){
 	 int issue = stop();
 	 if (issue <= topName){
@@ -258,6 +270,8 @@ bool Parser::constDef(){
    int topName = stopName.size();
    stopName.push_back(EQUALS); // adding equals
    stopName.push_back(ID);
+   int HTable= -1;
+   int value= -1;
    adv();
    if(!name()){
        
@@ -269,8 +283,10 @@ bool Parser::constDef(){
    }
    
    stopName.pop_back(); //ID
-   if (current==ID)
+   if (current==ID){
+      Htable=input->getValue();
       adv();
+   }
    if (current != EQUALS){
      if(error() <= topName){
 	 stopName.pop_back(); //pop equals
@@ -293,6 +309,22 @@ bool Parser::constDef(){
 	 return false;
       }
    }
+   switch(constant){
+      case NUM:
+      case ID:
+	 value = input.getValue();
+	 break;
+      case TRUE:
+	 value = 1;
+	 break;
+      case FALSE:
+	 value = 0;
+	 break;
+   }
+   if(table.define(Htable, CONSTANT, 0, Universal, value, 0)){
+      TypeError();
+   }
+   
    stopName.pop_back();//num
    stopName.pop_back();//ID
    stopName.pop_back();// true
@@ -349,11 +381,20 @@ bool Parser::procDef(){
 
 bool Parser::varibleDef(){
    int topName = stopName.size();
+   mType type;
+   vector<int> names;
+   switch (current){
+      case Boolean:
+	 type = Boolean;
+	 break;
+      case Integer:
+	 type = Integer;
+   }
    adv();
    if(current == ARRAY){
       adv();
       stopName.push_back(LEFTB); //[
-      if(!varList()){
+      if(!varList(names)){
        
 	 int issue = stop();
 	 if (issue <= topName){
@@ -408,19 +449,28 @@ bool Parser::varibleDef(){
      
    }
    else{
-      if(!varList()){
+      if(!varList(names)){
 	 int issue = stop();
 	 if (issue <= topName){
 	    return false;
 	 }
       }
+      else{
+	 while( !names.empty()){	    
+	    if (!table.define(names.back(),VARIABLE,0 ,type, 0, 0))
+	       TypeError();
+	    name.pop_back();
+	 }
+	  
+	    
+      }
    }
    return true;
 }
 
-bool Parser::varList(){
+bool Parser::varList(int* names){
    int topName = stopName.size();
-   stopName.push_back(ID);//num
+   stopName.push_back(ID);//ID
    stopName.push_back (COMMA); //,
    if(!name()){
      if(stop() <= topName){
@@ -431,6 +481,7 @@ bool Parser::varList(){
    }
    
    if( current==ID){
+      names.push_back(input->get_Value());
       adv();
    }
    while(current == COMMA){
@@ -445,8 +496,10 @@ bool Parser::varList(){
 	 }
       }
       
-      if (current==ID)
+      if (current==ID){
+	 names.push_back(input->get_value());
 	 adv();
+      }
    }
    stopName.pop_back(); //ID
    stopName.pop_back(); //,
