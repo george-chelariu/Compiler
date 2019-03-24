@@ -38,12 +38,12 @@ TableEntry BlockTable::find(int index, bool& error)
 {
    //search through the current block entry to see if the indices within
    //match the index passed in
-   for(int i=0; i< BlockEntry.size(); i++)
+   for(int i=0; i < table.size(); i++)
    {
-      if (BlockEntry[i].index == index)
+      if(table[i].index == index)//(BlockEntry[i].index == index)
       {
 	 //return the table entry at the specific block if it's found
-	 return BlockEntry[i];
+	 return table[i];//BlockEntry[i];
       }
    }
    //otherwise we search through the remaining tables
@@ -61,6 +61,26 @@ TableEntry BlockTable::find(int index, bool& error)
    
 }
 
+Type BlockTable::findType(int index, bool& error)
+{
+   //going through the 2 dimensional table array to search for the
+   //index we're passing in
+   for(int i=0; i < table.size(); i++)
+   {
+      for (int j=0; j < MAXBLOCK; j++)
+      {
+	 if(table[i][j].index() == index)
+	 {
+	    //return the type from that table location
+	    return table[i][j].type();
+	 }	 
+      }  
+   }
+   //after going through table and finding nothing we deduce there is
+   //an error and return the universal type
+   error = true;
+   return UNIVERSAL;
+}
 bool BlockTable::newBlock()
 {
    //if we're at the maximum number of blocks, return false, i.e. we can't

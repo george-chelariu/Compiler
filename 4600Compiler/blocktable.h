@@ -28,8 +28,12 @@ typedef struct TableEntry
       //doesn't exist and return true; else return false
       bool define (int ind, mkind kind, int size, mType type, int val, int block);
       //all the fields of TableEntry get passed within the params of define
-      
+
+      //find function looks through the table and returns the table entry
       TableEntry find (int ind, bool& error);
+
+      //findtype is a more specific find function that returns a type
+      Type findType (int ind, bool& error);
       
       //creates an empty block & pushes it onto the vector of Block
       bool newBlock();
@@ -43,9 +47,11 @@ typedef struct TableEntry
       //helper function that empties the block before popping for cleanliness
       void emptyBlock();
       
-     private:    
-      vector<TableEntry> BlockEntry;
-      BlockTable table[MAXBLOCK];
+     private:
+      //use an array of vectors for the block table
+      vector<TableEntry> table[MAXBLOCK];//BlockEntry;
+      //BlockTable table[MAXBLOCK];
+      //keep track of current block level
       int blockLevel;
    };
 
