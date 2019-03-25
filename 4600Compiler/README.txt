@@ -1,7 +1,7 @@
 ﻿CPSC 4620 Project - Scope and Type Checking
 Group Members: Brett Cassidy, George Chelariu
 Brett's Contribution: Augmented the implementation for the parser to work with the block table. Fixed syntax errors and other bugs that didn't allow scope and type checking with the test files. Vast amounts of code optimization done to the parser. Helped write the technical documentation file by providing information on the functions and classes.
-George's Contribution: Implemented the block table which later got improved upon by Brett. Wrote the majority of the additions to design, classes, and function sections of the technical documentation. Some spell checking and ensuring that the document describes the program as clearly as possible. Performed buddy programming alongside Brett, catching errors and providing suggestions while coding, which helped speed up debugging process.
+George's Contribution: Implemented the typekindenum and block table, the latter of which later got improved upon by Brett. Wrote the majority of the additions to design, classes, and function sections of the technical documentation. Some spell checking and ensuring that the document describes the program as clearly as possible. Performed buddy programming alongside Brett, catching errors and providing suggestions while coding, which helped speed up debugging process.
 
 FILE NAMES
 admin.cc
