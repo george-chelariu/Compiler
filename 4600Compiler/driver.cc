@@ -7,6 +7,7 @@
 #include "token.h"
 #include "symbol.h"
 #include "parser.h"
+#include "blocktable.h"
 
 
 // The original grammar for infix2postfix translator
@@ -50,8 +51,10 @@ int main(int argc, char *argv[])
     //create a scanner
     Scanner sc(&inputfile, &st);
 
+    BlockTable Table();
+
     //create a parcer
-    Parser pc("a");
+    Parser pc(Table);
 
     
     //Get the compiler running.
