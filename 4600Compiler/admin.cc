@@ -12,6 +12,7 @@ Administration::Administration(ifstream& in, ofstream &out, Scanner &sc, Parser 
    errorCount = 0;
    parsr= &pc;
    emitting = true;
+   lineNumber = 0;
 }
 
 
@@ -34,6 +35,7 @@ void Administration::emit1(string op)
       //output just the op
       *outputasm << op << endl;
    }
+   lineNumber++;
 }
 
 void Administration::emit2(string op, int arg1)
@@ -43,15 +45,26 @@ void Administration::emit2(string op, int arg1)
       //output the op and argument
       *outputasm << op << endl << arg1 << endl;
    }
+   lineNumber++;
+   lineNumber++;
 }
 
-void Administration::emit3(strong op, int arg1, int arg2)
+void Administration::emit3(string op, int arg1, int arg2)
 {
    //remains true until we find an error
    if(emitting){
       //output the op and the 2 arguments
       *outputasm << op << arg1 << endl << arg2 << endl;
    }
+   lineNumber++;
+   lineNumber++;
+   lineNumber++;
+}
+
+int Administration::getlineNumber(int linno)
+{
+   linno = lineNumber;
+   return linno;
 }
 
 void Administration::error (string text){

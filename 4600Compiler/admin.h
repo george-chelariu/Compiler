@@ -42,6 +42,8 @@ class Administration
     void emit1(string op);
     void emit2(string op, int arg1);
     void emit3(string op, int arg1, int arg2);
+
+    int getlineNumber(int linno);
   
   private:
 
@@ -74,5 +76,7 @@ class Administration
 
     //starts true and turns false when  we find an error while emitting
     bool emitting;
+
+    int lineNumber;
 };
 #endif // ADMIN_H
