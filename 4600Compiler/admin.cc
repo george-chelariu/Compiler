@@ -61,10 +61,9 @@ void Administration::emit3(string op, int arg1, int arg2)
    lineNumber++;
 }
 
-int Administration::getlineNumber(int linno)
+int Administration::getlineNumber()
 {
-   linno = lineNumber;
-   return linno;
+   return lineNumber;
 }
 
 void Administration::error (string text){

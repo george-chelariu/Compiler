@@ -43,7 +43,7 @@ class Administration
     void emit2(string op, int arg1);
     void emit3(string op, int arg1, int arg2);
 
-    int getlineNumber(int linno);
+    int getlineNumber();
   
   private:
 
