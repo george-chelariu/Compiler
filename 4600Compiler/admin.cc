@@ -3,13 +3,15 @@
 
 
 
-Administration::Administration(ifstream& in, ofstream &out, Scanner &sc, Parser &pc){
+Administration::Administration(ifstream& in, ofstream &out, Scanner &sc, Parser &pc, ofstream &outasm){
    outputfileptr = &out;
+   outputasm = &outasm;
    scanr= &sc;
    lineNo = 0;
    correctline = true;
    errorCount = 0;
    parsr= &pc;
+   emitting = true;
 }
 
 
@@ -20,10 +22,38 @@ void Administration::NewLine(){
   *outputfileptr <<"LINE "<< lineNo << " : " << endl; 
 }
 
-void Administration:: ParseError(string text){
+void Administration::ParseError(string text){
    error(text);
    correctline = true;
 }
+
+void Administration::emit1(string op)
+{
+   //remains true until we find an error
+   if(emitting){
+      //output just the op
+      *outputasm << op << endl;
+   }
+}
+
+void Administration::emit2(string op, int arg1)
+{
+   //remains true until we find an error 
+   if(emitting){
+      //output the op and argument
+      *outputasm << op << endl << arg1 << endl;
+   }
+}
+
+void Administration::emit3(strong op, int arg1, int arg2)
+{
+   //remains true until we find an error
+   if(emitting){
+      //output the op and the 2 arguments
+      *outputasm << op << arg1 << endl << arg2 << endl;
+   }
+}
+
 void Administration::error (string text){
    if (errorCount < MAXERRORS){
       cout << "line: " << lineNo << " " << '\"' << text <<  '\"' << endl;
