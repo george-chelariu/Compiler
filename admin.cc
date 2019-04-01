@@ -24,6 +24,16 @@ void Administration:: ParseError(string text){
    error(text);
    correctline = true;
 }
+void Administration::TypeError(TableEntry info){
+ if (errorCount < MAXERRORS){
+    cout << "line: " << lineNo << " " << "Kind: " << info.kind << '\t'
+	 << "type: " << info.type << '\t' << "Value: " << info.value << endl; 
+    errorCount++;
+   }
+   return;
+
+
+}
 void Administration::error (string text){
    if (errorCount < MAXERRORS){
       cout << "line: " << lineNo << " " << '\"' << text <<  '\"' << endl;

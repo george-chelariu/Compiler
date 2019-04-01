@@ -3,7 +3,7 @@ CXX=g++
 RM=rm -f
 
 
-SRCS=admin.cc driver.cc parser.cc scanner.cc symtable.cc token.cc
+SRCS=admin.cc driver.cc parser.cc scanner.cc symtable.cc token.cc blocktable.cc interp.cc Assembler.cc
 OBJS=$(subst .cc,.o,$(SRCS))
 
 
@@ -27,8 +27,16 @@ token.o: token.h token.cc
 
 symbol.o: symbol.h
 
+blocktable.o: blocktable.h blocktable.cc
+
+typekindenum.o: typekindenum.h
+
+interp.o: interp.h interp.cc
+
+Assembler.o: Assembler.h Assembler.cc
+
 clean:
-	$(RM) $(OBJS)
+	$(RM) $(OBJS) 
 
 distclean: clean
 	   $(RM) tool
