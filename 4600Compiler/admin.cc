@@ -55,6 +55,7 @@ void Administration::emit3(strong op, int arg1, int arg2)
 }
 
 void Administration::error (string text){
+   emitting = false;
    if (errorCount < MAXERRORS){
       cout << "line: " << lineNo << " " << '\"' << text <<  '\"' << endl;
       correctline = false;
