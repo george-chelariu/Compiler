@@ -1,6 +1,8 @@
 #include <iostream>
+
 #include "parser.h"
 #include "admin.h"
+#include "blocktable.h"
 
 /*a lot of repeated things so mainly commeting on the unique things so dont have to add 1000+
   comments that mainly reapeat on sections of code
@@ -11,32 +13,43 @@ using namespace std;
 
 //constructor that gets called when we actually do things with it
 //errors out without it
-Parser::Parser(string h){
+Parser::Parser(BlockTable *h){
+   Table =h;
+   labelNumber = 0;
 }
 
 // function that gets the next token and puts the info in the holders
 void Parser::adv(){
    // get returns the next valid token, reuses a lot of the old scanner code
    input = admin-> get();
-   currentName = input.myName();
-   currentLex = input.getLexeme();
+   current = input.getSymbol();
    return;
+}
+
+int Parser::newLabel(){
+   labelNumber++; 
+   if (labelNumber > MAXLABEL) 
+      admin->fatal("Exceeded maximum labels in code generation...Bailing out");
+   return labelNumber;
+}
+
+
 }
 
 int Parser::error(){
    //setting up what typpe of error
    string text = "ParseE ";
    // if ID we whant the Lex on the error report
-   if(currentName == "ID")
-      text.append(currentLex);
+   if(current == 256) //ID
+      text.append(input.getLexeme());
    // otherwise we want the Name as that gives more info
    else
-      text.append(currentName);
+      text.append(input.myName());
    //sends it out to be reported
    admin->ParseError(text);
    //looks to see if this one is a Token that is handled
    int depth = stop();
-   while(depth == 0){ //0 = not handled +num = Lux handled -num Name handled
+   while(depth == 0 & current != ENDOFFILE){ //0 = not handled +num = Lux handled -num Name handled
       adv();
       depth= stop();
       //repeat until a good token is found
@@ -44,176 +57,165 @@ int Parser::error(){
    return depth;
    
 }
-// same as error but no passing is and swaping stop with stop2nd
-int Parser::error2nd(){
-   int depth = stop();
-   while(depth == 0){
-      adv();
-      depth= stop2nd();
-   }
-   return depth;
-   
-}
 
 //just error that returns nothing 
 void Parser::Verror(){
-   string text = "ParseE ";
-   if(currentName == "ID")
-      text.append(currentLex);
-   else
-      text.append(currentName);
-   admin->ParseError(text);
-   int depth = stop();
-   while(depth == 0){
-      adv();
-      depth= stop();
-   }
+   bool holder = error();
    return;
-   
 }
 // looks through all of Lex to see if current Token is handled
 //then if Name is hadled
 // if not there return 0
 int Parser::stop(){
-   for (int i = stopName.size()-1; i<= stopLex.size(); i--){
-      if (stopLex[i] == currentLex)
+   for (int i = stopName.size()-1; i <= 0; i--){
+      if (stopName[i] == current)
 	 return i+1;
-   }
-   for (int i = stopName.size()-1; i>= 0; i--){
-      if(stopName[i] == currentName)
-	 return (-1*(i+1));
    }
    return 0;
 }
-//same as stop but Name first then Lex
-// if nothing return 0
-int Parser::stop2nd(){
-   
-   for (int i = stopName.size()-1; i>= 0; i--){
-      if(stopName[i] == currentName)
-	 return (-1*(i+1));
-   }
-   for (int i = stopName.size()-1; i<= stopLex.size(); i--){
-      if (stopLex[i] == currentLex)
-	 return i+1;
-   }
-   return 0;
+void Parser::typeError(){
+   bool holder;
+   admin->TypeError(Table->find(input.getValue(), holder));
+   return;
+
 }
 
 void Parser::work(Administration &ad){
 // to get admin to report errors and get tokens
    //done this way as parser is created before the admin
    admin = &ad;
-   stopName.push_back("ENDOFFILE"); //setting up part of the follow sets
-   stopName.push_back("DOT");
-
-  
+   
+   int varibles, start;
+   varibles= newLabel();
+   start = newLabel();
+   admin->emit3("PROG", varibles, start);
+   if (!Table->newBlock()){
+      typeError();
+      return;
+   }
+   stopName.push_back(ENDOFFILE); //setting up part of the follow sets
+   stopName.push_back(DOT);  
    adv(); // loads first Token
-   if (!block()){
+   if (!block(varibles, start)){
       //calls block and returns true if good and false if a unhandled error
-	 return;
-     
+      stopName.pop_back();
+      stopName.pop_back();
+      return;
+      
+   }
+   
+   if (!Table->endBlock()){
+      typeError();
+      return;
    }
    adv();
 // should be on to the last token as only way it gets here is if block was good so looking at a end
-   if(currentLex!= ".") 
+
+
+  
+   if(current!= DOT) 
       Verror();
+   admin->emit1("ENDPROG");
    stopName.pop_back(); //pop EOF
    stopName.pop_back(); //pop DOT
    //pops things off the vectors as we are above there level now
    return;
 }
 
-bool Parser::block(){
+bool Parser::block(int varend, int start){
    // setting the size for everything that was before us
    // so if in between these values a parent caused the error and we pass it up
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
+   int varibles;
+   int topName = stopName.size();
 
    //setting up our handling
 
-   stopLex.push_back("begin");
-
-
-   if (currentLex!="begin"){
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
+   stopName.push_back(BEGIN);
+   if (current!=BEGIN){
+     if(error() <= topName){
 	 //only gets in here if the catch was added in before we enterd block
 	 //so EOF or "."
-	 stopLex.pop_back(); //pop begin
+	 stopName.pop_back(); //pop begin
 	 return false;
       }
       // this would cycle *** begin past the 3 *'s and stops at begin
    }
-   stopLex.pop_back(); // pop begin
-   stopLex.push_back("end");
+   stopName.pop_back(); // pop begin
+   stopName.push_back(END);
 
    // setting up first of  statment part
    //as we catch that if defn part get on of them
-   stopLex.push_back("skip");
-   stopLex.push_back("read");
-   stopLex.push_back("write");
-   stopLex.push_back("call");
-   stopLex.push_back("if");
-   stopLex.push_back("do");
-   stopName.push_back("ID");  //for assign statment
+   stopName.push_back(SKIP);
+   stopName.push_back(READ);
+   stopName.push_back(WRITE);
+   stopName.push_back(CALL);
+   stopName.push_back(IF);
+   stopName.push_back(DO);
+   stopName.push_back(ID);  //for assign statment
 
 //advances past Begin
    adv();
    //starts defn part
    // returns true if no unhandled Token false if unhadled at that level
-   if(!defnPart()){
+   if(!defnPart(varend, varibles)){
       int issue = stop();
-      int issue2nd = stop2nd();
       //gets the points in the vectors that have good Tokens
-      if (issue <= topName && issue2nd >= topLex){
+      if (issue <= topName){
 	 //sees if that token is handled by this level if not return
 	 //after pop what this level handles
 	 stopName.pop_back(); //pop ID/Assign
-	 stopLex.pop_back(); //pop do
-	 stopLex.pop_back(); //pop if
-	 stopLex.pop_back(); //pop call
-	 stopLex.pop_back(); //pop write
-	 stopLex.pop_back(); //pop read
-	 stopLex.pop_back(); //pop skip
-	 stopLex.pop_back(); // pop end
+	 stopName.pop_back(); //pop do
+	 stopName.pop_back(); //pop if
+	 stopName.pop_back(); //pop call
+	 stopName.pop_back(); //pop write
+	 stopName.pop_back(); //pop read
+	 stopName.pop_back(); //pop skip
+	 stopName.pop_back(); // pop end
 
 	 
 	 return false;
       }
    }
+
+//decide stuff here for start
+   emit3("DEFARG", varend, varibles); 
+   emit2("DEFADDR", start);
+
+
+
+
+
+   
+
+
+   
    // removing the first of statment part as this level no longer handles that
    stopName.pop_back(); //pop ID/Assign
-   stopLex.pop_back(); //pop do
-   stopLex.pop_back(); //pop if
-   stopLex.pop_back(); //pop call
-   stopLex.pop_back(); //pop write
-   stopLex.pop_back(); //pop read
-   stopLex.pop_back(); //pop skip
+   stopName.pop_back(); //pop do
+   stopName.pop_back(); //pop if
+   stopName.pop_back(); //pop call
+   stopName.pop_back(); //pop write
+   stopName.pop_back(); //pop read
+   stopName.pop_back(); //pop skip
 
    //same as defn part
    if(!statePart()){
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopLex.pop_back(); //pop end
+     if(stop() <= topName){
+	 stopName.pop_back(); //pop end
 	 return false;
       }
    }
   
    // to make sure that the end token is at the end of the block part 
-   if (currentLex != "end"){
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back(); //pop end
+   if (current != END){
+     if(error() <= topName){
+	    stopName.pop_back(); //pop end
 	    return false;
       }
       else
 	 adv();
    }
-   stopLex.pop_back(); // pop end
+   stopName.pop_back(); // pop end
    return true;
 }
 
@@ -221,146 +223,161 @@ bool Parser::block(){
    just with differant things pushed and poped, and differant hard comparisons
    like "end"
 */
-bool Parser::defnPart(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopLex.push_back("const");
-   stopLex.push_back("proc");
-   stopLex.push_back("integer");
-   stopLex.push_back("Boolean");
-   stopLex.push_back(";");
-   if (currentLex == ";")
+bool Parser::defnPart(int startoffset, int* varibles){
+   int offset = startoffset;
+   int topName = stopName.size();
+   stopName.push_back(CONST);
+   stopName.push_back(PROC);
+   stopName.push_back(INT);
+   stopName.push_back(BOOLEAN);
+   stopName.push_back(SEMICOLON);
+ 
+
+
+ 
+   if (current == SEMICOLON)
       adv();
-   if(currentLex == "const"){
-      if(constDef()){
+   if(current == CONST){
+      if(!constDef(varibles)){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back(); //pop ;
-	    stopLex.pop_back(); //pop boolean
-	    stopLex.pop_back(); //pop int
-	    stopLex.pop_back(); //pop proc
-	    stopLex.pop_back(); //const
+	 if (issue <= topName){
+	    stopName.pop_back(); //pop ;
+	    stopName.pop_back(); //pop boolean
+	    stopName.pop_back(); //pop int
+	    stopName.pop_back(); //pop proc
+	    stopName.pop_back(); //const
 
 	    return false;
 	 }
-	 else
-	    adv();
       }
    }
-   else if (currentLex == "proc"){
+   else if (current == PROC){
       if(!procDef()){ 
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back(); //pop ;
-	    stopLex.pop_back(); //pop boolean
-	    stopLex.pop_back(); //pop int
-	    stopLex.pop_back(); //pop proc
-	    stopLex.pop_back(); //const
+	 if (issue <= topName){
+	    stopName.pop_back(); //pop ;
+	    stopName.pop_back(); //pop boolean
+	    stopName.pop_back(); //pop int
+	    stopName.pop_back(); //pop proc
+	    stopName.pop_back(); //const
 	    return false;
 	 }
-	 else
-	    adv();
       }
 
    }
-   else if( currentLex == "Boolean" || currentLex == "integer"){
-      if(!varibleDef()){
+   else if(current == BOOLEAN || current == INT){
+      if(!varibleDef(varibles, offset)){
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back(); //pop ;
-	    stopLex.pop_back(); //pop boolean
-	    stopLex.pop_back(); //pop int
-	    stopLex.pop_back(); //pop proc
-	    stopLex.pop_back(); //const
+	 if (issue <= topName){
+	    stopName.pop_back(); //pop ;
+	    stopName.pop_back(); //pop boolean
+	    stopName.pop_back(); //pop int
+	    stopName.pop_back(); //pop proc
+	    stopName.pop_back(); //const
 	    return false;
 	 }
-	 else
-	    adv();
       }
    }
-   else
-	 return true;
-   if (currentLex == ";"){
-      adv();
+   else{
+      stopName.pop_back(); //pop ;
+      stopName.pop_back(); //pop boolean
+      stopName.pop_back(); //pop int
+      stopName.pop_back(); //pop proc
+      stopName.pop_back(); //const
+      return true;
    }
-   if (!defnPart()){
+   stopName.pop_back(); //pop ;
+   stopName.pop_back(); //pop boolean
+   stopName.pop_back(); //pop int
+   stopName.pop_back(); //pop proc
+   stopName.pop_back(); //const
+   if (!defnPart(offset, varibles)){
        
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back(); //pop ;
-	    stopLex.pop_back(); //pop boolean
-	    stopLex.pop_back(); //pop int
-	    stopLex.pop_back(); //pop proc
-	    stopLex.pop_back(); //const
+     if(stop() <= topName){
 	 return false;
       }
-      else
-	 adv();
    }
-   stopLex.pop_back(); //pop ;
-   stopLex.pop_back(); //pop boolean
-   stopLex.pop_back(); //pop int
-   stopLex.pop_back(); //pop proc
-   stopLex.pop_back(); //const
+
    return true;
 }
 
 bool Parser::constDef(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopName.push_back("EQUALS"); // adding equals
-   stopName.push_back("ID");
+   int topName = stopName.size();
+   stopName.push_back(EQUALS); // adding equals
+   stopName.push_back(ID);
+   int HTable= -1;
+   int value= -1;
+   bool typeerror = false;
+   mType type= Universal;
    adv();
    if(!name()){
        
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
+     if(stop() <= topName){
+	 stopName.pop_back(); // = 
 	 stopName.pop_back(); //ID
-	 stopName.pop_back();//=
 	 return false;
       }
-      else
-	 adv();
    }
+   
    stopName.pop_back(); //ID
-   adv();
-   if (currentName != "EQUALS"){
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
+   if (current==ID){
+      HTable=input.getValue();
+      adv();
+   }
+   if (current != EQUALS){
+     if(error() <= topName){
 	 stopName.pop_back(); //pop equals
 	 return false;
       }
-      else
-	 adv();
    }
    adv();
+   stopName.pop_back(); //equals
+   stopName.push_back(ID);
+   stopName.push_back(NUM);
+   stopName.push_back(TRUE);
+   stopName.push_back(FALSE);
    if(!constant()){
        
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopName.pop_back(); // equals
+     if(stop() <= topName){
+	 stopName.pop_back();//num
+	 stopName.pop_back();//ID
+	 stopName.pop_back();// true
+	 stopName.pop_back();// false
 	 return false;
       }
-      else
-	 adv();
    }
-
+   switch(current){
+      case NUM:
+	 type= Integer;
+	 value= input.getValue();
+	 break;
+      case ID:
+	 type = Table->findType(input.getValue(), typeerror);
+	 break;
+      case TRUE:
+	 type = Boolean;
+	 value = 1;
+	 break;
+      case FALSE:
+	 type=Boolean;
+	 value = 0;
+	 break;
+   }
+   if(!Table->define(HTable, CONSTANT, 0, type, value, 0)){
+      typeError();
+   }
+   stopName.pop_back();//num
+   stopName.pop_back();//ID
+   stopName.pop_back();// true
+   stopName.pop_back();// false
    adv();
-   stopName.pop_back(); // removing equals
    return true;
 
 }
 
 bool Parser::name(){
-   if(currentName == "ID")
+   if(current == ID)
       return true;
    else
       Verror();
@@ -369,13 +386,13 @@ bool Parser::name(){
 
 
 bool Parser::constant(){
-   if (currentName == "NUM"){
+   if (current == NUM){
       return true;
    }
-   else if( currentLex =="true" || currentLex == "false"){
+   else if( current == TRUE || current == FALSE){
       return true;
    }
-   else if (currentName == "ID"){
+   else if (current == ID){
       return true;
    }
    return false;
@@ -383,913 +400,901 @@ bool Parser::constant(){
 }
 
 bool Parser::procDef(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopName.push_back("ID");
+   int topName = stopName.size();
+   bool flag = false;
+   stopName.push_back(ID);
    adv();
    if(!name()){
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
+     if(stop() <= topName){
 	 stopName.pop_back(); // ID
 	 return false;
       }
-      else
-	 adv();
    }
+   int procLabel = newLabel();
+   if (!(Table->define(input.getValue(),PROCEDURE, 0, Universal, 0, 0, procLabel)))
+      typeError();
+      
+   if(!Table->newBlock()){
+      typeError();
+      flag = true;
+   }
+   // at name
    adv();
    stopName.pop_back(); //ID
+   int varLabel = newLabel();
+   int startLabel = newLabel();
+   admin->emit2("DEFADDR", procLabel);
+   admin->emit3("PROC", varLabel, startLabel);
+   
    if(!block()){
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
+      if(stop() <= topName){
+	 if (!Table->endBlock())
+	  typeError();
 	 return false;
       }
-      else
-	 adv();
    }
-
+   if (flag == false)
+      if (!Table->endBlock())
+	 typeError();
+   admin->emit1("ENDPROC");
    adv();
    return true;
 }
 
-bool Parser::varibleDef(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
+bool Parser::varibleDef(int* varibles, int* varstart){
+   int topName = stopName.size();
+   mType type;
+   vector<int> names;
+   switch (current){
+      case BOOLEAN:
+	 type = Boolean;
+	 break;
+      case INT:
+	 type = Integer;
+	 break;
+   }
    adv();
-   if(currentLex == "array"){
+   if(current == ARRAY){
       adv();
-      stopName.push_back("LEFTB"); //[
-      if(!varList()){
+      stopName.push_back(LEFTB); //[
+      if(!varList(names)){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName){
 	    stopName.pop_back(); // [
 	    return false;
 	 }
-	 else
-	    adv();
       }
 
-      if (currentName != "LEFTB" ){ //[
+      if (current != LEFTB ){ //[
 	 int issue = error();
-	 int issue2nd = error2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName){
 	    stopName.pop_back(); //pop [
 	    return false;
 	 }
-	 else
-	    adv();
       }
       adv();
       stopName.pop_back(); //poping [
-      stopName.push_back("RIGHTB"); //adding ]
-      stopName.push_back("NUM");
-      stopName.push_back("ID");
-      stopLex.push_back("false");
-      stopLex.push_back("true");
+      stopName.push_back(RIGHTB); //adding ]
+      stopName.push_back(NUM);
+      stopName.push_back(ID);
+      stopName.push_back(FALSE);
+      stopName.push_back(TRUE);
       if(!constant()){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName){
 	    stopName.pop_back(); // ]
 	    stopName.pop_back();//num
 	    stopName.pop_back();//id
-	    stopLex.pop_back();//false
-	    stopLex.pop_back();//true
+	    stopName.pop_back();//false
+	    stopName.pop_back();//true
 	    return false;
 	 }
-	 else
-	    adv();
       }
+      
       stopName.pop_back();//num
       stopName.pop_back();//id
-      stopLex.pop_back();//false
-      stopLex.pop_back();//true
+      stopName.pop_back();//false
+      stopName.pop_back();//true
 
-      
+      varibles += names.size() * input.getValue();
+// here
+      while(!names.empty()){	    
+	 if (!Table->define(names.back(),ARR, input.getValue(),0,type, varstart, 0)){
+	    typeError();
+	 }
+	 varstart+=input.getValue();
+	 names.pop_back();
+      }
       adv();
-      if(currentLex !="]"){
-	 int issue = error();
-	 int issue2nd = error2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+      if(current !=RIGHTB){ //]
+
+	 if (error() <= topName){
 	    stopName.pop_back(); //pop ]
 	    return false;
 	 }
-	 else
-	    adv();
       }
 
       adv();
       stopName.pop_back(); // pop ]
      
    }
-   else
-      if(!varList()){
+   else{
+      if(!varList(names)){
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName){
 	    return false;
 	 }
-	 else
-	    adv();
       }
+      else{
+	 varibles += names.size();
+	 while( !names.empty()){	    
+	    if (!Table->define(names.back(),VARIABLE,0 ,type, varstart, 0))
+	       typeError();
+	    names.pop_back();
+	    varstart++;
+	 }
+	  
+	    
+      }
+   }
    return true;
 }
 
-bool Parser::varList(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
+bool Parser::varList(vector<int>& names){
+   int topName = stopName.size();
+   stopName.push_back(ID);//ID
+   stopName.push_back (COMMA); //,
    if(!name()){
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
+     if(stop() <= topName){
+	 stopName.pop_back(); //ID
+	 stopName.pop_back(); //,
 	 return false;
       }
-      else
-	 adv();
    }
-
-   adv();
-   while(currentLex == ","){
+   
+   if( current==ID){
+      names.push_back(input.getValue());
+      adv();
+   }
+   while(current == COMMA){
       adv();
       if(!name()){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName){
+	    stopName.pop_back(); //ID
+	    stopName.pop_back(); //,
 	    return false;
 	 }
-	 else
-	    adv();
       }
-      adv();
+      
+      if (current==ID){
+	 names.push_back(input.getValue());
+	 adv();
+      }
    }
+   stopName.pop_back(); //ID
+   stopName.pop_back(); //,
    return true;
 }
 
 
 bool Parser::statePart(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopLex.push_back("skip");
-   stopLex.push_back("read");
-   stopLex.push_back("write");
-   stopLex.push_back("call");
-   stopLex.push_back("if");
-   stopLex.push_back("do");
-   stopName.push_back("ID");  //for assign statment
-   stopName.push_back("SEMICOLON");
+   int topName = stopName.size();
    
-   if (currentLex == "end"|| currentLex == "fi" || currentLex == "od"){
-      stopName.pop_back(); //pop ID/Assign
-      stopLex.pop_back(); //pop do
-      stopLex.pop_back(); //pop if
-      stopLex.pop_back(); //pop call
-      stopLex.pop_back(); //pop write
-      stopLex.pop_back(); //pop read
-      stopLex.pop_back(); //pop skip
-      stopName.pop_back(); // ;
-      return true;
-   }
-   if (currentLex == ";")
+   stopName.push_back(SKIP);
+   stopName.push_back(READ);
+   stopName.push_back(WRITE);
+   stopName.push_back(CALL);
+   stopName.push_back(IF);
+   stopName.push_back(DO);
+   stopName.push_back(ID);  //for assign statment
+   stopName.push_back(SEMICOLON);
+
+   
+   if (current == SEMICOLON)
       adv();
-   if(currentLex == "skip"){
+   if(current == SKIP){
       if(!emptyState()){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName){
 	    stopName.pop_back(); //pop ID/Assign
-	    stopLex.pop_back(); //pop do
-	    stopLex.pop_back(); //pop if
-	    stopLex.pop_back(); //pop call
-	    stopLex.pop_back(); //pop write
-	    stopLex.pop_back(); //pop read
-	    stopLex.pop_back(); //pop skip
+	    stopName.pop_back(); //pop do
+	    stopName.pop_back(); //pop if
+	    stopName.pop_back(); //pop call
+	    stopName.pop_back(); //pop write
+	    stopName.pop_back(); //pop read
+	    stopName.pop_back(); //pop skip
 	    stopName.pop_back(); // ;
 	    return false;
 	 }
-	 else
-	    adv();
       }
    }
-   else if (currentLex == "read"){
+   else if (current == READ){
       if(!readState()){
 	 
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName){
 	    stopName.pop_back(); //pop ID/Assign
-	    stopLex.pop_back(); //pop do
-	    stopLex.pop_back(); //pop if
-	    stopLex.pop_back(); //pop call
-	    stopLex.pop_back(); //pop write
-	    stopLex.pop_back(); //pop read
-	    stopLex.pop_back(); //pop skip
+	    stopName.pop_back(); //pop do
+	    stopName.pop_back(); //pop if
+	    stopName.pop_back(); //pop call
+	    stopName.pop_back(); //pop write
+	    stopName.pop_back(); //pop read
+	    stopName.pop_back(); //pop skip
 	    stopName.pop_back(); // ;
 	    return false;
 	 }
-	 else
-	    adv();
       }
    }
-   else if( currentLex == "write"){
+   else if( current == WRITE){
       if(!writeState()){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName){
 	    stopName.pop_back(); //pop ID/Assign
-	    stopLex.pop_back(); //pop do
-	    stopLex.pop_back(); //pop if
-	    stopLex.pop_back(); //pop call
-	    stopLex.pop_back(); //pop write
-	    stopLex.pop_back(); //pop read
-	    stopLex.pop_back(); //pop skip
+	    stopName.pop_back(); //pop do
+	    stopName.pop_back(); //pop if
+	    stopName.pop_back(); //pop call
+	    stopName.pop_back(); //pop write
+	    stopName.pop_back(); //pop read
+	    stopName.pop_back(); //pop skip
 	    stopName.pop_back(); // ;
 	    return false;
 	 }
-	 else
-	    adv();
       }
    }
-   else if (currentLex == "call"){
+   else if (current == CALL){
       if(!precedureState()){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName ){
 	    stopName.pop_back(); //pop ID/Assign
-	    stopLex.pop_back(); //pop do
-	    stopLex.pop_back(); //pop if
-	    stopLex.pop_back(); //pop call
-	    stopLex.pop_back(); //pop write
-	    stopLex.pop_back(); //pop read
-	    stopLex.pop_back(); //pop skip
+	    stopName.pop_back(); //pop do
+	    stopName.pop_back(); //pop if
+	    stopName.pop_back(); //pop call
+	    stopName.pop_back(); //pop write
+	    stopName.pop_back(); //pop read
+	    stopName.pop_back(); //pop skip
 	    stopName.pop_back(); // ;
 	    return false;
 	 }
-	 else
-	    adv();
       }
    }
-   else if (currentLex== "if"){
+   else if (current== IF){
       if(!ifState()){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName){
 	    stopName.pop_back(); //pop ID/Assign
-	    stopLex.pop_back(); //pop do
-	    stopLex.pop_back(); //pop if
-	    stopLex.pop_back(); //pop call
-	    stopLex.pop_back(); //pop write
-	    stopLex.pop_back(); //pop read
-	    stopLex.pop_back(); //pop skip
+	    stopName.pop_back(); //pop do
+	    stopName.pop_back(); //pop if
+	    stopName.pop_back(); //pop call
+	    stopName.pop_back(); //pop write
+	    stopName.pop_back(); //pop read
+	    stopName.pop_back(); //pop skip
 	    stopName.pop_back(); // ;
 	    return false;
 	 }
-	 else
-	    adv();
       }
    }
-   else if (currentLex == "do"){
+   else if (current == DO){
       if(!doState()){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName ){
 	    stopName.pop_back(); //pop ID/Assign
-	    stopLex.pop_back(); //pop do
-	    stopLex.pop_back(); //pop if
-	    stopLex.pop_back(); //pop call
-	    stopLex.pop_back(); //pop write
-	    stopLex.pop_back(); //pop read
-	    stopLex.pop_back(); //pop skip
+	    stopName.pop_back(); //pop do
+	    stopName.pop_back(); //pop if
+	    stopName.pop_back(); //pop call
+	    stopName.pop_back(); //pop write
+	    stopName.pop_back(); //pop read
+	    stopName.pop_back(); //pop skip
 	    stopName.pop_back(); // ;
 	    return false;
 	 }
-	 else
-	    adv();
       }
    }
-   else if (currentName == "ID"){
+   else if (current == ID){
       if(!assignState()){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName){
 	    stopName.pop_back(); //pop ID/Assign
-	    stopLex.pop_back(); //pop do
-	    stopLex.pop_back(); //pop if
-	    stopLex.pop_back(); //pop call
-	    stopLex.pop_back(); //pop write
-	    stopLex.pop_back(); //pop read
-	    stopLex.pop_back(); //pop skip
+	    stopName.pop_back(); //pop do
+	    stopName.pop_back(); //pop if
+	    stopName.pop_back(); //pop call
+	    stopName.pop_back(); //pop write
+	    stopName.pop_back(); //pop read
+	    stopName.pop_back(); //pop skip
 	    stopName.pop_back(); // ;
 	    return false;
 	 }
-	 else
-	    adv();
       }
    }
    else {
-      stopName.pop_back(); //pop ID/Assign
-      stopLex.pop_back(); //pop do
-      stopLex.pop_back(); //pop if
-      stopLex.pop_back(); //pop call
-      stopLex.pop_back(); //pop write
-      stopLex.pop_back(); //pop read
-      stopLex.pop_back(); //pop skip
-      stopName.pop_back(); // ;
-      return true;
-   }
-   if(currentLex== ";")
-      adv();
-   if(!statePart()){
-       
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopName.pop_back(); //pop ID/Assign
-	 stopLex.pop_back(); //pop do
-	 stopLex.pop_back(); //pop if
-	 stopLex.pop_back(); //pop call
-	 stopLex.pop_back(); //pop write
-	 stopLex.pop_back(); //pop read
-	 stopLex.pop_back(); //pop skip
-	 stopName.pop_back(); // ;
-	 return false;
-      }
-      else
-	 adv();
+        stopName.pop_back(); //pop ID/Assign
+	stopName.pop_back(); //pop do
+	stopName.pop_back(); //pop if
+	stopName.pop_back(); //pop call
+	stopName.pop_back(); //pop write
+	stopName.pop_back(); //pop read
+	stopName.pop_back(); //pop skip
+	stopName.pop_back(); // ;
+	return true;
    }
    stopName.pop_back(); //pop ID/Assign
-   stopLex.pop_back(); //pop do
-   stopLex.pop_back(); //pop if
-   stopLex.pop_back(); //pop call
-   stopLex.pop_back(); //pop write
-   stopLex.pop_back(); //pop read
-   stopLex.pop_back(); //pop skip
+   stopName.pop_back(); //pop do
+   stopName.pop_back(); //pop if
+   stopName.pop_back(); //pop call
+   stopName.pop_back(); //pop write
+   stopName.pop_back(); //pop read
+   stopName.pop_back(); //pop skip
    stopName.pop_back(); // ;
+   if(!statePart()){
+       
+     if(stop() <= topName){
+	 return false;
+      }
+   }
+
    return true;
 }
 
 bool Parser:: emptyState(){
-   while (!(currentName == "SEMICOLON" || currentName== "DOT" || currentName== "ENDOFFILE")) //;
+   while (!(current == SEMICOLON || current== DOT || current== ENDOFFILE)) //;
       adv();
    return true;
 }
       
 bool Parser::readState(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
+   int topName = stopName.size();
+   vector<mType> holder;
    adv();
-   if(!varAccList()){
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
+   if(!varAccList(holder)){
+     if(stop() <= topName){
 	 return false;
       }
       else
 	 adv();
    }
+   emit2("READ", holder.size());
    return true;
 }
 
-bool Parser::varAccList(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   if(!varAcc()){
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
+bool Parser::varAccList(vector<mType>& holder){
+   int topName = stopName.size();
+   bool error = false;
+   stopName.push_back(COMMA);
+   //here
+   holder.push_back(Table->findType(input.getValue(), error));
+   if (error){
+      holder.pop_back();
+      typeError();
+   }
+   if(!varAcc(holder)){
+     if(stop() <= topName){
+	 stopName.pop_back(); //,
 	 return false;
       }
-      else
-	 adv();
+ 
    }
 
-   while (currentLex == ","){
+   while (current == COMMA){
       adv();
-      if(!varAcc()){
+      //here
+      holder.push_back(Table->findType(input.getValue(), error));
+      if (error){
+	 holder.pop_back();
+	 typeError();
+      }
+      if(!varAcc(holder)){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName){
+	    stopName.pop_back(); //,
 	    return false;
 	 }
-	 else
-	    adv();
       }
 
    }
+   stopName.pop_back();//,
    return true;
 }
 
-bool Parser::varAcc(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopName.push_back("ID");
+bool Parser::varAcc( mType& exp){
+   mType holder;
+   int topName = stopName.size();
+   stopName.push_back(ID);
+   stopName.push_back(LEFTB);
    if(!name()){
        
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopName.pop_back();
+     if(stop() <= topName){
+	 stopName.pop_back(); //ID
+	 stopName.pop_back(); //[
 	 return false;
       }
-      else
-	 adv();
    }
-   stopName.pop_back();
-   adv();
-   if (currentLex == "["){
-      stopName.push_back("RIGHTB"); // push ]
+   bool error = false;
+   tableEntry temp = table->find(input.getValue(), error);
+   if (error)
+      TypeError();
+   
+   stopName.pop_back(); //ID
+   stopName.pop_back(); //[
+   if (current ==ID)
+      adv();
+   if (current == LEFTB){
+      stopName.push_back(RIGHTB); // push ]
       adv();
      
-      if (!expression()){
+      if (!expression(holder)){
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName ){
 	    stopName.pop_back(); // ]
 	    return false;
 	 }
-	 else
-	    adv();
       }
-     
-      if (currentLex == "]")
-	 adv();
-      else{
+      admin->emit3("INDEX", temp.size, admin->getLineNumber());
+      if (current != RIGHTB){
 	 int issue = error();
-	 int issue2nd = error2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName ){
 	    stopName.pop_back(); //pop ]
 	    return false;
 	 }
-	 else
-	    adv();
       }
       stopName.pop_back(); //]
+      adv();
+      
+      
    }
+   else{
+      dmin->emit3("VARIABLE", blocktable.currentLevel() - tempentry.level, tempentry.displacement);
+   }
+
    return true;
 }
 
 
-bool Parser::expression(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopLex.push_back("&");
-   stopLex.push_back("|");
-   if(!primeExp()){
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	  stopLex.pop_back();//&
-	  stopLex.pop_back();//|
+bool Parser::expression(mType& expholder){
+   int topName = stopName.size();
+   stopName.push_back(AND);
+   stopName.push_back(OR);
+   if(!primeExp(expholder)){
+     if(stop() <= topName ){
+	  stopName.pop_back();//&
+	  stopName.pop_back();//|
 	  return false;
       }
-      else
-	 adv();
    }
 
-   while (currentLex == "&" || currentLex == "|"){
+   while (current == AND || current == OR){
       adv();
-      if(!primeExp()){
-       
+      if (tempsym == AND)
+	 admin->emit1("AND");
+      else
+	 admin->emit1("OR");
+      
+      if(!primeExp(expholder)){      
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back();//&
-	    stopLex.pop_back();//|
+	 if (issue <= topName ){
+	    stopName.pop_back();//&
+	    stopName.pop_back();//|
+	    expholder = Boolean;
 	    return false;
 	 }
-	 else
-	    adv();
       }
+      expholder = Boolean;
 
    }
-   stopLex.pop_back();//&
-   stopLex.pop_back();//|
+   stopName.pop_back();//&
+   stopName.pop_back();//|
    return true;
 }
 
-bool Parser::primeExp(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopLex.push_back("<");
-   stopLex.push_back("=");
-   stopLex.push_back(">");
-   if(!simpleExp()){
+bool Parser::primeExp(mType& expholder){
+   int topName = stopName.size();
+   stopName.push_back(GREATERTHAN);
+   stopName.push_back(EQUALS);
+   stopName.push_back(LESSTHAN);
+   if(!simpleExp(expholder)){
        
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopLex.pop_back();//>
-	 stopLex.pop_back();//=
-	 stopLex.pop_back();//<
+     if(stop() <= topName){
+	 stopName.pop_back();//>
+	 stopName.pop_back();//=
+	 stopName.pop_back();//<
 	 return false;
       }
-      else
-	 adv();
    }
-
-   if (currentLex == "<" || currentLex == "=" || currentLex == ">"){
+  
+   if (current == GREATERTHAN || current == EQUALS ||current == LESSTHAN){
+      if (current == LESSTHAN)
+	 admin->emit1("LESS");
+      else if (current == EQUAL)
+	 admin->emit1("EQUAL");
+      else
+	 admin->emit1("GREATER");
       adv();
-      if(!simpleExp()){
+      if(!simpleExp(expholder)){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back();//>
-	    stopLex.pop_back();//=
-	    stopLex.pop_back();//<
+	 if (issue <= topName){
+	     stopName.pop_back();//>
+	     stopName.pop_back();//=
+	     stopName.pop_back();//<
+	     expholder = Boolean;
 	    return false;
 	 }
 	 else
 	    adv();
+
       }
+      expholder= Boolean;
 
    }
-   stopLex.pop_back();//>
-   stopLex.pop_back();//=
-   stopLex.pop_back();//<
+   stopName.pop_back();//>
+   stopName.pop_back();//=
+   stopName.pop_back();//<
+
    return true;
 }
 
 
-bool Parser::simpleExp(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopLex.push_back("-");
-   stopLex.push_back("+");
-   if (currentLex == "-")
+bool Parser::simpleExp(mType& expholder){
+   int topName = stopName.size();
+   stopName.push_back(MINUS);
+   stopName.push_back(PLUS);
+   if (current == MINUS)
       adv();
-   if(!term()){
-       
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopLex.pop_back();//-
-	 stopLex.pop_back();//+
+   if(!term(expholder)){     
+      if(stop() <= topName ){
+	 stopName.pop_back();//-
+	 stopName.pop_back();//+
 	 return false;
       }
-      else
-	 adv();
    }
 
-   while (currentLex == "+"|| currentLex == "-"){
+   while (current == PLUS||current == MINUS){
+      if (current == PLUS)
+	 admin->emit1("ADD");
+      else
+	 admin->emit1("SUBTRACT");
       adv();
-      if(!term()){
+      if(!term(expholder)){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back();//-
-	    stopLex.pop_back();//+
+	 if (issue <= topName ){
+	    stopName.pop_back();//-
+	    stopName.pop_back();//+
+	    expholder = Integer;
 	    return false;
 	 }
-	 else
-	    adv();
       }
+      expholder = Integer;
 
    }
-   stopLex.pop_back();//-
-   stopLex.pop_back();//+
+   stopName.pop_back();//-
+   stopName.pop_back();//+
    return true;
 }
 
-bool Parser::term(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopLex.push_back("*");
-   stopLex.push_back("\\");
-   stopLex.push_back("/");
-   if(!factor()){
+bool Parser::term(mType& expholder){
+   int topName = stopName.size();
+   stopName.push_back(TIMES);
+   stopName.push_back(DIVIDE);
+   stopName.push_back(MODULUS);
+   if(!factor(expholder)){
        
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopLex.pop_back();// "/"
-	 stopLex.pop_back();// "\"
-	 stopLex.pop_back();// *
+     if(stop() <= topName){
+	 stopName.pop_back();// "/"
+	 stopName.pop_back();// "\"
+	 stopName.pop_back();// *
 	 return false;
       }
-      else
-	 adv();
    }
 
-   while (currentLex == "*" || currentLex == "/" || currentLex == "\\"){
+   while (current ==TIMES|| current ==DIVIDE||current == MODULUS){
+      if (current == TIMES)
+	 admin->emit1("MULTIPLY");
+      else if (current == DIV)
+	 admin->emit1("DIVIDE");
+      else
+	 admin->emit1("MODULO");
       adv();
-      if(!factor()){
+      if(!factor(expholder)){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back();// "/"
-	    stopLex.pop_back();// "\"
-	    stopLex.pop_back();// *
+	 if (issue <= topName){
+	    stopName.pop_back();// "/"
+	    stopName.pop_back();// "\"
+	    stopName.pop_back();// *
+	    expholder = Integer;
 	    return false;
 	 }
-	 else
-	    adv();
       }
+      expholder = Integer;
 
    }
-   stopLex.pop_back();// "/"
-   stopLex.pop_back();// "\"
-   stopLex.pop_back();// *
+   stopName.pop_back();// "/"
+   stopName.pop_back();// "\"
+   stopName.pop_back();// *
    return true;
 
 }
 
-bool Parser::factor(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopLex.push_back("~");
-   stopName.push_back("ID");
-   stopName.push_back("NUM");
-   stopLex.push_back("true");
-   stopLex.push_back("false");
-   stopLex.push_back("(");
-   stopLex.push_back(")");
-   if (currentLex == "~"){
+bool Parser::factor(mType& expholder){
+   int topName = stopName.size();
+   if (current == NOT){
+      admin->emit1("NOT");
       adv();
-      if(!factor()){
+      if(!factor(expholder)){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back();// (
-	    stopLex.pop_back();// ~
-	    stopName.pop_back(); // ID
-	    stopLex.pop_back();// )
-	     stopLex.pop_back();// true
-	    stopLex.pop_back();// false
-	    stopName.pop_back(); // NUM
+	 if (issue <= topName ){
+	    expholder = Boolean;
 	    return false;
 	 }
-	 else
-	    adv();
+	
       }
+      expholder = Boolean;
 
    }
-   else if (currentLex== "("){
+   else if (current==LEFTP){
       adv();
-      if(!expression()){
+      stopName.push_back(RIGHTP); //)
+      if(!expression(expholder)){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back();// (
-	    stopLex.pop_back();// ~
-	    stopName.pop_back(); // ID
-	    stopLex.pop_back();// )
-	    stopLex.pop_back();// true
-	    stopLex.pop_back();// false
-	    stopName.pop_back(); // NUM
+	 if (issue <= topName ){
+	    stopName.pop_back();// )
 	    return false;
 	 }
-	 else
-	    adv();
       }
 
-      if (currentLex == ")")
+      if (current ==RIGHTP)
 	 adv();
-      else   {
+      else{
 	 int issue = error();
-	 int issue2nd = error2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back();// (
-	    stopLex.pop_back();// ~
-	    stopName.pop_back(); // ID
-	    stopLex.pop_back();// )
-	    stopLex.pop_back();// true
-	    stopLex.pop_back();// false
-	    stopName.pop_back(); // NUM
+	 if (issue <= topName){
+	    stopName.pop_back();// )
 	    return false;
-	 }
-	 else
-	    adv();
+	 }	 
       }
+      stopName.pop_back(); // )
 
    }
-   else if(currentName == "ID"){
-      if(!varAcc()){
+   else if(current == ID){
+      bool error = false;
+      TableEntry I;
+      I=Table->find(input.getValue(), error);
+      if (error){
+	 typeError();
+      }
+      if (I.kind == CONSTANT){
+	 admin->emit2("CONSTANT", I.value);
+
+      }
+      else{
+	 admin->emit1("VALUE");
+	 
+      }
+      expholder = I.type;
+      if(!varAcc(expholder)){
        
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back();// ~
-	    stopName.pop_back(); // ID
-	    stopLex.pop_back();// (
-	    stopLex.pop_back();// )
-	    stopLex.pop_back();// true
-	    stopLex.pop_back();// false
-	    stopName.pop_back(); // NUM
+	 if (issue <= topName ){
 	    return false;
 	 }
-	 else
-	    adv();
       }
    }
    else {
+      stopName.push_back(ID);
+      stopName.push_back(NUM);
+      stopName.push_back(TRUE);
+      stopName.push_back(FALSE);
       if (!constant()){
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back();// ~
+	 if (issue <= topName){
 	    stopName.pop_back(); // ID
-	    stopLex.pop_back();// (
-	    stopLex.pop_back();// )
-	    stopLex.pop_back();// true
-	    stopLex.pop_back();// false
+	    stopName.pop_back();// true
+	    stopName.pop_back();// false
 	    stopName.pop_back(); // NUM
+	    expholder = Universal;
 	    return false;
 	 }
-	 else
-	    adv();
       }
+      switch(current){
+	 case ID:
+	    bool error;
+	    error = false;
+	    mType I;
+	    I =Table->findType(input.getValue(), error);
+	    if (!error){
+	       expholder = I;
+	    }
+	    break;
+	 case TRUE:
+	    admin->emit2("CONSTANT", 1);
+	    expholder = Boolean;
+	    break;
+	 case FALSE:
+	    admin->emit2("CONSTANT", 0);
+	    expholder= Boolean;
+	    break;
+	 case NUM:
+	    expholder = Integer;
+	    admin->emit2("CONSTANT", input.getValue());
+	    break;
+      }
+
+      stopName.pop_back(); // ID
+      stopName.pop_back();// true
+      stopName.pop_back();// false
+      stopName.pop_back(); // NUM
       adv();
    }
-   stopLex.pop_back();// ~
-   stopName.pop_back(); // ID
-   stopLex.pop_back();// (
-   stopLex.pop_back();// )
-   stopLex.pop_back();// true
-   stopLex.pop_back();// false
-   stopName.pop_back(); // NUM
    return true;
 }
 
       
 bool Parser::writeState(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
+   vector<mType> holder;
+   int topName = stopName.size();
    adv();
-   if (!expList()){
+   if (!expList(holder)){
        
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
+     if(stop() <= topName){
 	 return false;
       }
-      else
-	 adv();
    }
-
+   emit2("WRITE",holder.size());
    return true;
 }
 
-bool Parser::expList(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopName.push_back("ID");
-   stopLex.push_back(",");
-   if(!expression()){
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
+bool Parser::expList(vector<mType>& exp){
+   int topName = stopName.size();
+   stopName.push_back(ID);
+   stopName.push_back(COMMA);
+   mType holder;
+ 
+   if(!expression(holder)){
+     if(stop() <= topName ){
 	  stopName.pop_back(); // ID
-	  stopLex.pop_back();// ,
+	  stopName.pop_back();// ,
 	 return false;
       }
-      else
+      if (current == ID)
 	 adv();
    }
-   while( currentLex == ","){
+   exp.push_back(holder);
+   while( current == COMMA){
       adv();
-      if(!expression()){     
+      if(!expression(holder)){     
 	 int issue = stop();
-	 int issue2nd = stop2nd();
-	 if (issue <= topName && issue2nd >= topLex){
+	 if (issue <= topName ){
 	     stopName.pop_back(); // ID
-	     stopLex.pop_back();// ,
+	     stopName.pop_back();// ,
 	    return false;
 	 }
-	 else
+	 if(current ==ID)
 	    adv();
       }
+      exp.push_back(holder);
    }
    stopName.pop_back(); // ID
-   stopLex.pop_back();// ,
-   
+   stopName.pop_back();// ,
    return true;
 }
 
 
 bool Parser::precedureState(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
+   int topName = stopName.size();
    adv();
-   stopName.push_back("ID");
+   
+   stopName.push_back(ID);
    if(!name()){
        
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
+     if(stop() <= topName ){
 	    stopName.pop_back();//id
 	    return false;
       }
-      else
-	 adv();
    }
+//here
+   bool error = false;
+   TableEntry temp = Table->find(input.getValue(), error);
+   if (error)
+      typeError();
+
+   admin->emit3("CALL", blocktable.currentLevel() - temp.blevel, temp.startLabel);
+   stopName.pop_back(); //ID
    adv();
    return true;
 }
 
 bool Parser::ifState(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
+   int topName = stopName.size();
+   int startLabel = NewLabel(); 
+   int doneLabel = NewLabel();
    adv();
-   stopLex.push_back("fi");
-   if(!guardedComList()){
+   stopName.push_back(FI);
+   if(!guardedComList(startLabel, doneLabel)){
        
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopLex.pop_back(); //pop fi
+     if(error() <= topName){
+	 stopName.pop_back(); //pop fi
 	 return false;
       }
-      else
-	 adv();
    }
-   if (currentLex == "fi"){
+   admin->emit2("DEFADDR", startLabel);
+   admin->emit2("FI", admin->getlineNumber());
+   admin->emit2("DEFADDR", doneLabel);
+   if (current == FI){
       adv();
    }
    else{
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopLex.pop_back(); //pop fi
+     if(error() <= topName ){
+	 stopName.pop_back(); //pop fi
 	 return false;
       }
       else
 	 adv();
    }
-   stopLex.pop_back(); // pop fi
+   stopName.pop_back(); // pop fi
    return true;
 }
 
-bool Parser::guardedComList(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopLex.push_back("[]");
-   if (!guardedCom()){
+bool Parser::guardedComList(int* startLable, int jumpLable){
+   int topName = stopName.size();
+   stopName.push_back(DOUBLEB);
+   if (!guardedCom(startLabel, jumpLable)){
        
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopLex.pop_back();//[]
+     if(error() <= topName ){
+	 stopName.pop_back();//[]
 	 return false;
       }
-      else
-	 adv();
    }
-   while ( currentLex == "[]"){
+   while ( current == DOUBLEB){
       adv();
-      if (!guardedCom()){
+      if (!guardedCom(startLabel, jumpLable)){
 	 
 	 int issue = error();
-	 int issue2nd = error2nd();
-	 if (issue <= topName && issue2nd >= topLex){
-	    stopLex.pop_back();//[]
+	 if (issue <= topName){
+	    stopName.pop_back();//[]
 	    return false;
 	 }
-	 else
-	    adv();
       }
    }
-   stopLex.pop_back();//[]
+   stopName.pop_back();//[]
    return true;
 	 
 }
 
-bool Parser::guardedCom(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopName.push_back("ARROW");
-   if(!expression()){
+bool Parser::guardedCom(int* startlable, int jumpLable){
+   mType exp = Universal;
+   int topName = stopName.size();
+    admin->emit2("DEFADDR", startlable);
+   stopName.push_back(ARROW);
+   if(!expression(exp)){
        
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopName.pop_back(); //pop ->
+     if(error() <= topName){
+	stopName.pop_back(); //pop ->
+	if (exp != Boolean)
+	   typeError();
 	 return false;
       }
-      else
-	 adv();
    }
-   if (currentLex == "->")
+   startLabel = NewLabel();
+   if (exp != Boolean){
+      typeError();
+   }
+
+    admin->emit2("ARROW", thisLabel);
+   if (current == ARROW)
       adv();
    else{
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
+     if(error() <= topName){
 	 stopName.pop_back(); //pop ->
 	 return false;
       }
@@ -1298,70 +1303,59 @@ bool Parser::guardedCom(){
    }
    stopName.pop_back(); // pop ->
    if (!statePart()){     
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
+     if(error() <= topName){
 	 return false;
       }
-      else
-	 adv();
    }
+   admin->emit2("BAR", jumpLable);
    return true;
 }
 
 bool Parser::doState(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
+   int topName = stopName.size();
+   int startLabel = newLabel();
+   int loopLabel = newLabel();
+   admin->emit2("DEFADDR", loopLabel);
    adv();
-   stopLex.push_back("od");
-   if (!guardedComList()){
+   stopName.push_back(OD);
+   if (!guardedComList(startLabel, loopLabel)){
        
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopLex.pop_back(); //pop od
+     if(error() <= topName ){
+	 stopName.pop_back(); //pop od
 	 return false;
       }
-      else
-	 adv();
    }
-   if (currentLex == "od")
+   admin->emit2("DEFADDR", startLabel);
+   if (current == OD)
       adv();
    else{
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
-	 stopLex.pop_back(); //pop od
+     if(error() <= topName ){
+	 stopName.pop_back(); //pop od
 	 return false;
       }
       else
 	 adv();
    }
-   stopLex.pop_back(); //pop od
+   stopName.pop_back(); //pop od
    return true;
 }
 
 
 bool Parser::assignState(){
-   int topName = (-1*(stopName.size()));
-   int topLex = stopLex.size();
-   stopName.push_back("ASSIGN");
-   if (!varAccList())   {
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
+   vector<mType> assign;
+   vector<mType> exp;
+   int topName = stopName.size();
+   stopName.push_back(ASSIGN);
+   if (!varAccList(assign))   {
+     if(error() <= topName){
 	 stopName.pop_back(); //pop :=
 	 return false;
       }
-      else
-	 adv();
    }
-   if (currentLex == ":=")
+   if (current == ASSIGN)
       adv();
    else{
-      int issue = error();
-      int issue2nd = error2nd();
-      if (issue <= topName && issue2nd >= topLex){
+     if(error() <= topName){
 	 stopName.pop_back(); //pop :=
 	 return false;
       }
@@ -1369,14 +1363,23 @@ bool Parser::assignState(){
 	 adv();
    }
    stopName.pop_back(); // pop :=
-   if (!expList()){
-      int issue = stop();
-      int issue2nd = stop2nd();
-      if (issue <= topName && issue2nd >= topLex){
+   if (!expList(exp)){
+     if(stop() <=  topName){
 	 return false;
       }
-      else
-	 adv();
    }
+   emit2("ASSIGN", assign.size());
+   if(exp.size() ==assign.size()){
+      while(!exp.empty()){
+	 if(exp.back() != assign.back())
+	    typeError();
+	 assign.pop_back();
+	 exp.pop_back();
+      }
+	    
+   }
+   else
+      typeError();
+
    return true;
 }
