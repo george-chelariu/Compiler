@@ -22,7 +22,7 @@ class Administration
 {
   public:
     // set up input and output files for scanning
-   Administration(ifstream& in, ofstream &out, Scanner &sc, Parser &pc);
+   Administration(ifstream& in, ofstream &out, Scanner &sc, Parser &pc, ofstream &outasm);
 
     ~Administration() {}
 
@@ -37,6 +37,15 @@ class Administration
     int parse();
 
     void ParseError (string text);
+
+    void TypeError(TableEntry info);
+
+    //the three emit functions
+    void emit1(string op);
+    void emit2(string op, int arg1);
+    void emit3(string op, int arg1, int arg2);
+
+    int getlineNumber();
   
   private:
 
@@ -48,6 +57,9 @@ class Administration
 
     //output file
     ofstream *outputfileptr;
+
+    //output assembler files
+    ofstream *outputasm;
 
     //scanner
     Scanner *scanr;
@@ -63,5 +75,10 @@ class Administration
 
     //count # of errors
     int errorCount;
+
+    //starts true and turns false when  we find an error while emitting
+    bool emitting;
+
+    int lineNumber;
 };
 #endif // ADMIN_H

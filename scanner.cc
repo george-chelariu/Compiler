@@ -106,7 +106,60 @@ Token Scanner::recognizeName()
       Token tooLong(BADNAME, -1, " ");
       return tooLong;
    }
-       
+
+   if( theName== "begin"){
+       Token recogName(BEGIN, symtableptr->insert(theName), theName);
+       return recogName;
+   }
+   else if( theName== "end"){
+      Token recogName(END, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "const"){
+       Token recogName(CONST, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "array"){
+       Token recogName(ARRAY, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "integer"){
+       Token recogName(INT, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "Boolean"){
+       Token recogName(BOOLEAN, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "proc"){
+       Token recogName(PROC, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "skip"){
+       Token recogName(SKIP, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "read"){
+       Token recogName(READ, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "write"){
+       Token recogName(WRITE, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "call"){
+       Token recogName(CALL, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "if"){
+       Token recogName(IF, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "do"){
+       Token recogName(DO, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "fi"){
+       Token recogName(FI, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "od"){
+       Token recogName(OD, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "false"){
+       Token recogName(FALSE, symtableptr->insert(theName), theName);
+       return recogName;
+   }  else if( theName== "true"){
+       Token recogName(TRUE, symtableptr->insert(theName), theName);
+       return recogName;
+   }
      
  
    Token recogName(ID, symtableptr->insert(theName), theName);

@@ -3,13 +3,16 @@
 
 
 
-Administration::Administration(ifstream& in, ofstream &out, Scanner &sc, Parser &pc){
+Administration::Administration(ifstream& in, ofstream &out, Scanner &sc, Parser &pc, ofstream &outasm){
    outputfileptr = &out;
+   outputasm = &outasm;
    scanr= &sc;
    lineNo = 0;
    correctline = true;
    errorCount = 0;
    parsr= &pc;
+   emitting = true;
+   lineNumber = 0;
 }
 
 
@@ -20,21 +23,60 @@ void Administration::NewLine(){
   *outputfileptr <<"LINE "<< lineNo << " : " << endl; 
 }
 
-void Administration:: ParseError(string text){
+void Administration::ParseError(string text){
    error(text);
    correctline = true;
 }
+
 void Administration::TypeError(TableEntry info){
- if (errorCount < MAXERRORS){
-    cout << "line: " << lineNo << " " << "Kind: " << info.kind << '\t'
-	 << "type: " << info.type << '\t' << "Value: " << info.value << endl; 
-    errorCount++;
+   if (errorCount < MAXERRORS){
+      cout << "line: " << lineNo << " " << "Kind: " << info.kind << '\t'
+	   << "type: " << info.type << '\t' << "Value: " << info.value << endl; 
+      errorCount++;
    }
    return;
-
-
 }
+
+void Administration::emit1(string op)
+{
+   //remains true until we find an error
+   if(emitting){
+      //output just the op
+      *outputasm << op << endl;
+   }
+   lineNumber++;
+}
+
+void Administration::emit2(string op, int arg1)
+{
+   //remains true until we find an error 
+   if(emitting){
+      //output the op and argument
+      *outputasm << op << endl << arg1 << endl;
+   }
+   lineNumber++;
+   lineNumber++;
+}
+
+void Administration::emit3(string op, int arg1, int arg2)
+{
+   //remains true until we find an error
+   if(emitting){
+      //output the op and the 2 arguments
+      *outputasm << op << arg1 << endl << arg2 << endl;
+   }
+   lineNumber++;
+   lineNumber++;
+   lineNumber++;
+}
+
+int Administration::getlineNumber()
+{
+   return lineNumber;
+}
+
 void Administration::error (string text){
+   emitting = false;
    if (errorCount < MAXERRORS){
       cout << "line: " << lineNo << " " << '\"' << text <<  '\"' << endl;
       correctline = false;
