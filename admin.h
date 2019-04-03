@@ -9,29 +9,29 @@
 #include "scanner.h"
 #include "token.h"
 #include "parser.h"
+#include "blocktable.h"
 
 // This is the maximum number of errors before the compiler bails out
 #define MAXERRORS 10
-class Parser;
-// each phase has its kind of errors
-enum errorkind {ScanE, ParseE, ScopeE, TypeE};
-
 using namespace std;
+class Parser;
 
-class Administration
-{
+
+
+
+class Administration{
   public:
-    // set up input and output files for scanning
+   // set up input and output files for scanning
    Administration(ifstream& in, ofstream &out, Scanner &sc, Parser &pc, ofstream &outasm);
 
-    ~Administration() {}
+   ~Administration() {}
 
 
-    Token get();
+   Token get();
 
 
-    //call scanner from here
-    int scan();
+   //call scanner from here
+   int scan();
 
     //call parser from here
     int parse();
@@ -46,6 +46,8 @@ class Administration
     void emit3(string op, int arg1, int arg2);
 
     int getlineNumber();
+
+    void fatal(string words);
   
   private:
 

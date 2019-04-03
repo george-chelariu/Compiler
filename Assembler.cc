@@ -245,7 +245,7 @@ void Assembler::secondPass()
       else {
 	 // We should never see this message.
 	 cerr << "Assembler encountered unknown operator \"" << nextop << "\"\n";
-	 exit(2);
+	 //exit(2);
       }
       (*insource) >> nextop;
 //	   cout << "got: " << nextop << endl;

@@ -1,7 +1,7 @@
 #include "blocktable.h"
 
 //Constructor for table entries
-BlockTable::TableEntry(int i, mkind k, int s, mType t, int v, int bl)
+TableEntry::TableEntry(int i, mKind k, int s, mType t, int v, int bl)
 {
    index = i;
    kind = k;
@@ -10,89 +10,106 @@ BlockTable::TableEntry(int i, mkind k, int s, mType t, int v, int bl)
    value = v;
    bLevel = bl;
 }
+BlockTable::BlockTable(int h){	
+   blockLevel = 0;
+   TableEntry filler(-1, CONSTANT, -1,Universal, -1, -1);
+   for(int i = 0; i< MAXBLOCK; i++){
+      table[i].push_back(filler);
+      table[i].pop_back();
+   }
+
+
+      
+};
+bool BlockTable::search(int ind){  
+   for(int j=0; j < table[blockLevel].size(); j++){
+      if(table[blockLevel][j].index == ind)
+	 return true;
+   }
+   return false;
+}
+
+void BlockTable::output(){
+   cout<< "blocks " << blockLevel<< endl;
+   for(int i=MAXBLOCK-1; i >=0; i--)
+   {
+      for (int j=0; j < table[i].size(); j++)
+      {
+	 cout << i << " " << j << endl;
+	 cout << table[i][j].index << endl;
+	 cout << endl;
+      }
+   }
+
+}
+
 
 //The define function inserts a TableEntry if the symbol table does not have
 //the index that we've passed in
-bool BlockTable::define(int index, mkind kind, int size, mType type, int val, int block)
+bool BlockTable::define(int index, mKind kind, int size, mType type, int val, int block)
 {
-   //As long as we're not at the base block level, we recursively insert
-   //more table entries until we've reached the controller
-   if (blockLevel != 0){
-      if (!search(index))
-      {
-	 return table[blockLevel].define(index, kind, size, type, val, blockLevel);	 
-      }
-   }
-   //push the defined table entry onto the vector
-   else
-   {
-      BlockEntry.push_back(index, kind, size, type, val, block);
+   if (!search(index)){
+      TableEntry result(index, kind, size, type,val, blockLevel);
+      table[blockLevel].push_back(result);
       return true;
    }
-
    //if we reach this point the index already exists, and we return false
    return false;
 }
 
 TableEntry BlockTable::find(int index, bool& error)
 {
-   //search through the current block entry to see if the indices within
-   //match the index passed in
-   for(int i=0; i < table.size(); i++)
+   for(int i=MAXBLOCK-1; i >= 0; i--)
    {
-      if(table[i].index == index)//(BlockEntry[i].index == index)
+      for (int j=0; j < table[i].size(); j++)
       {
-	 //return the table entry at the specific block if it's found
-	 return table[i];//BlockEntry[i];
+	 if(table[i][j].index == index)
+	 {
+	    //return the type from that table location
+	    return table[i][j];
+	 }
       }
-   }
-   //otherwise we search through the remaining tables
-   for(int i=0; i<table.size(); i++)
-   {
-      //recursively call find until we get to the deepest level or find the
-      //table entry we're looking for
-      table[i].find(index, error);
    }
    
    //not finding the table entry means we have an error, so set it to true
    error = true;
    //then return a dummy table entry since it expects a TableEntry
-   return (-1, CONSTANT, 0, Universal, -1, 0);
+   TableEntry holder (-1, CONSTANT, 0, Universal, -1, 0);
+   return holder;
    
 }
 
-Type BlockTable::findType(int index, bool& error)
+mType BlockTable::findType(int index, bool& error)
 {
    //going through the 2 dimensional table array to search for the
    //index we're passing in
-   for(int i=0; i < table.size(); i++)
+   for(int i=MAXBLOCK-1; i >= 0; i--)
    {
-      for (int j=0; j < MAXBLOCK; j++)
+      for (int j=0; j < table[i].size(); j++)
       {
-	 if(table[i][j].index() == index)
+	 if(table[i][j].index == index)
 	 {
 	    //return the type from that table location
-	    return table[i][j].type();
+	    return table[i][j].type;
 	 }	 
       }  
-   }
+      }
    //after going through table and finding nothing we deduce there is
    //an error and return the universal type
    error = true;
-   return UNIVERSAL;
+   return Universal;
 }
 bool BlockTable::newBlock()
 {
    //if we're at the maximum number of blocks, return false, i.e. we can't
    //make any more blocks
-   if(table.size() == MAXBLOCK)
+   if(blockLevel == MAXBLOCK)
    {
       return false;
    }
-
    //otherwise we go one block level deeper and create a fresh block table
    blockLevel++;
-   table[blockLevel] = freshBlockTable();
+   
 
    //then declare the new block successfully made
    return true;
@@ -100,11 +117,12 @@ bool BlockTable::newBlock()
 
 bool BlockTable::endBlock()
 {
-   //we've implemented an emptyBlock helper function to empty the current block
-   table[blockLevel].emptyBlock();
+   
+   while(!table[blockLevel].empty())
+    table[blockLevel].pop_back();
    //decrement the block level, and declade the block successfully ended
    blockLevel--;
-   retrun true;
+   return true;
 }
 
 //simple getter function that returns the current level. Mostly for debugging
@@ -113,11 +131,3 @@ int BlockTable::currentLevel()
    return blockLevel;
 }
 
-void BlockTable::emptyBlock()
-{
-   //While the table entry is not empty we pop it's contents off the vector
-   while(!TableEntry.empty())
-   {
-      TableEntry.pop_back();
-   }
-}

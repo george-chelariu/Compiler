@@ -8,6 +8,7 @@
 #include "symbol.h"
 #include "parser.h"
 #include "blocktable.h"
+#include "interp.h"     
 
 
 // The original grammar for infix2postfix translator
@@ -24,24 +25,45 @@
 
 using namespace std;
 
+bool file_exists(const char* filename);
+
+
+
+
 int main(int argc, char *argv[])
 {
-    if (argc != 3){
-        cout << "Usage: " << argv [0] << " PL_file Output_file" << endl;
-        return 0;
-    }
-    // Open the input and output files.
-    ifstream inputfile (argv[1]);
-    if(!inputfile){
-        cerr << "PL_file " << argv[1] << " could not be opened" << endl;
-        return 1;
-    }
-    ofstream outputfile(argv[2]);
-    if(!outputfile)
-    {
-        cerr << "Output_file" << argv[2] << " could not be opened" << endl;
-        return 1;
-    }
+
+string program_filename; //PLAM instruction file
+bool stepping = false;   //for debugging purposes; use switch -s
+   
+   
+   
+if (argc != 4){
+cout << "Usage: " << argv [0] << " PL_file Output_file PLAM_holder" << endl;
+return 0;
+}
+// Open the input and output files.
+ifstream inputfile (argv[1]);
+if(!inputfile){
+cerr << "PL_file " << argv[1] << " could not be opened" << endl;
+return 1;
+}
+ofstream outputfile(argv[2]);
+if(!outputfile)
+{
+cerr << "Output_file" << argv[2] << " could not be opened" << endl;
+return 1;
+}
+ofstream PLAMfile(argv[3]);
+if ( !file_exists( argv[3]))
+{  
+cout << "Program file '" << argv[3] << "' does not exist \n" << endl;
+return 1;
+}
+else
+   program_filename = argv[3];
+
+
     // create a symbol table
 
 
@@ -50,15 +72,12 @@ int main(int argc, char *argv[])
 
     //create a scanner
     Scanner sc(&inputfile, &st);
-
-    BlockTable Table();
-
+    BlockTable bt(0);
     //create a parcer
-    Parser pc(Table);
-
+    Parser pc(&bt);
     
     //Get the compiler running.
-    Administration compiler(inputfile, outputfile, sc, pc);
+Administration compiler(inputfile, outputfile, sc, pc, PLAMfile);
     int status = compiler.parse();
     if (status ==0)
        cout << "Scanning and parsing successful" << endl;
@@ -66,6 +85,23 @@ int main(int argc, char *argv[])
        cerr << "Program contains error(s)" << endl;
        return 0;
     }
+    cout << "starting interpretation" << endl;
+    
+
+    Interpreter interpreter(program_filename, stepping);
+
+    
     return 0;
 }
 
+bool file_exists( const char* file_name)
+{
+  filebuf fb;
+  if ( fb.open ( file_name, ios::in))
+  {
+    fb.close();
+    return true;
+  }
+  else
+    return false;
+}

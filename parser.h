@@ -53,11 +53,11 @@ class Parser{
    // advances the two Token holders so that we can go father through the file 1 token at a time
    void adv();
    // handles the block portion of the program always starting with begin and ending with end
-   bool block();
+   bool block(int varend, int start);
    //the area of the program when we define everything all of them end with a ; and will repeat until you call something in the statment part
-   bool defnPart(int* varibles);
+   bool defnPart( int varend, int* varibles);
    // handles the definitions of constant varibleswith assigning them varibles as well
-   bool constDef(int* varibles);
+   bool constDef();
    // helper function to see if a name is Valid
    bool name();
    // helper function to see if what we are looking at, is a boolean definition name or number
@@ -65,7 +65,7 @@ class Parser{
    //handles the definition of procedures by calling block() withen itself
    bool procDef();
    // handles the creation of varibles wither that be a series of int, or booleans, can also handle arrays ( no assigning)
-   bool varibleDef(int* varibles);
+   bool varibleDef(int* varibles, int offset);
    //helper function to handle a group of names
    bool varList(vector<int>& names);
    // statement part of the program
@@ -77,7 +77,7 @@ class Parser{
    //helper function for accsessing lists of varibles 
    bool varAccList(vector<mType>& holder);
    // helper function for acessessing single varibles
-   bool varAcc();
+   bool varAcc(mType& exp);
    // helper function for handling all exprestions
    bool expression(mType& expholder);
    // helper function for handling all prime expretions
@@ -97,9 +97,9 @@ class Parser{
    // if statment handler making sure if statment are handled properally
    bool ifState();
    // a list of exprestions and statments, mainly a helper function
-   bool guardedComList();
+   bool guardedComList(int& startLabel, int jumpLabel);
    //a comand by the logic of an exprestion -> then statments to follow up with
-   bool guardedCom();
+   bool guardedCom(int& startLabel, int jumpLabel);
    // very much like the if statments
    bool doState();
    // assigning values to varibles
@@ -115,6 +115,8 @@ class Parser{
    Symbol current;
    // a pointer to admin so we can get it to get tokens and report errors to it
    Administration  *admin;
+
+   int labelNumber;
 
    BlockTable *Table;
 };

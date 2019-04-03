@@ -3,10 +3,10 @@
 
 using namespace std;
 
-enum Kind{CONSTANT, VARIABLE, PROCEDURE, UNDEFINED};
+enum mKind{CONSTANT, VARIABLE,ARR, PROCEDURE, UNDEFINED};
 //UNDEFINED represents a kind error
 
-enum Type{Integer, Boolean, Universal};
+enum mType{Integer, Boolean, Universal};
 //Universal is to handle type error
 
 #endif

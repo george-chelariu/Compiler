@@ -1,29 +1,27 @@
 #include "admin.h"
-#include "token.h"
+
 
 
 
 Administration::Administration(ifstream& in, ofstream &out, Scanner &sc, Parser &pc, ofstream &outasm){
-   outputfileptr = &out;
    outputasm = &outasm;
+   outputfileptr = &out;
    scanr= &sc;
    lineNo = 0;
    correctline = true;
    errorCount = 0;
    parsr= &pc;
-   emitting = true;
-   lineNumber = 0;
 }
 
 
 void Administration::NewLine(){
  
-       lineNo++;
-       correctline = true;
-  *outputfileptr <<"LINE "<< lineNo << " : " << endl; 
+   lineNo++;
+   correctline = true;
+   *outputfileptr <<"LINE "<< lineNo << " : " << endl; 
 }
 
-void Administration::ParseError(string text){
+void Administration:: ParseError(string text){
    error(text);
    correctline = true;
 }
@@ -35,6 +33,8 @@ void Administration::TypeError(TableEntry info){
       errorCount++;
    }
    return;
+
+
 }
 
 void Administration::emit1(string op)
@@ -75,8 +75,8 @@ int Administration::getlineNumber()
    return lineNumber;
 }
 
+
 void Administration::error (string text){
-   emitting = false;
    if (errorCount < MAXERRORS){
       cout << "line: " << lineNo << " " << '\"' << text <<  '\"' << endl;
       correctline = false;
@@ -94,7 +94,7 @@ int Administration::scan(){
 	 NewLine();
       }
       else if (holder.getSymbol() == 262){
-	    return errorCount;
+	 return errorCount;
       }
       else if (holder.getSymbol() == 258 && correctline ==true)
 	 error("BADNUM ScanE");
@@ -115,11 +115,11 @@ Token Administration::get(){
    Token holder;
    while(errorCount < MAXERRORS){
       holder = scanr->getToken();
-       if (holder.getSymbol() == 260){
+      if (holder.getSymbol() == 260){
 	 NewLine();
       }
-       else if (holder.getSymbol() == 262){
-	    return holder;
+      else if (holder.getSymbol() == 262){
+	 return holder;
       }
       else if (holder.getSymbol() == 258 && correctline ==true)
 	 error("BADNUM ScanE");
@@ -145,3 +145,13 @@ int Administration::parse(){
    parsr->work(*this);
    return errorCount;
 }
+
+
+void Administration::fatal(string words){
+   cout << words << endl;
+   errorCount =100;
+   emitting == false;
+   return;
+
+}
+
