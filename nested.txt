@@ -1,0 +1,95 @@
+$Program nested
+$ The first PLAM instruction is output now
+$ emit3("PROG", VarLabel, StartLabel)
+$ over the next three lines
+$ in the assembler code file
+begin
+  integer i,j,k;
+  integer array f[2];
+$ A call to proc p1 needs to know the address 
+$ of the PROC instruction for p1; we generate
+$ a label to allow the assembler resolve the address of
+$ PROC instruction for p1.
+$
+$ emit1(ProcLabel)
+$
+$ Now emit the first PLAM instruction for p1's code
+$ VarLabel is the number of storage needed for variables defined
+$ in p1 and StartLabel is for the address of first
+$ "executable instruction"
+$
+$ emit3("PROC", VarLabel, StartLabel)
+$
+  proc p1
+  begin
+    integer i,l;
+    integer array a[2];
+$ p11:
+$ emit1(ProcLabel)
+$ emit3("PROC", VarLabel, StartLabel)
+$
+    proc p11
+    begin
+     k := 2;		$ first sexecurable instruction of p1
+    end;  		$ k's relative level is 2;
+
+$ return from p11; "ENDPROC"
+$ emit1("ENDPROC")
+
+$ p12:
+$ emit1(ProcLabel)
+$ emit3("PROC", VarLabel, StartLabel)
+$
+    proc p12
+    begin
+    end;
+    i := 1;		$ first execurable statement of p1
+      	 		$ i's relative level is 0;
+  end;
+$ return from p12; emit "ENDPROC"
+$ emit1("ENDPROC")
+
+$ p2:
+$ emit1(ProcLabel)
+$ emit3("PROC", VarLabel, StartLabel)
+$
+  proc p2
+  begin
+    integer m;
+    integer l;
+$ p21:
+$ emit1(ProcLabel)
+$ emit3("PROC", VarLabel, StartLabel)
+$
+    proc p21
+     begin
+      Boolean b;
+$ p211:
+$ emit1(ProcLabel)
+$ emit3("PROC", VarLabel, StartLabel)
+$
+
+      proc p211
+      begin
+       f[2] := 2; $ f's relative level is 2
+       call p211; $ recursive call
+      end;
+
+$ return from p211; emit "ENDPROC"
+$ emit1("ENDPROC")
+     end;
+$ return from p21; emit "ENDPROC"
+$ emit1("ENDPROC")
+
+    call p21;
+    call p2;
+  end;
+
+$ return from p2; emit "ENDPROC"
+$ emit1("ENDPROC")
+
+  call p1; $ first executable instruction of program
+  call p2;
+end.
+$ return from Program; emit "ENDPROG"
+$ emit1("ENDPROG")
