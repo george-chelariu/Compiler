@@ -1,0 +1,23 @@
+C=gcc
+CXX=g++
+RM=rm -f
+
+
+SRCS=interp.cc
+OBJS=$(subst .cc,.o,$(SRCS))
+
+
+All: driver
+
+driver: $(OBJS)
+	$(CXX) $(LDFLAGS) -o driver  $(OBJS)  $(LDLIBS) $(clean)
+
+
+
+interp.o: interp.h interp.cc
+
+clean:
+	$(RM) $(OBJS) 
+
+distclean: clean
+	   $(RM) tool
