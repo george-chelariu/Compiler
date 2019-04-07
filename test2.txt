@@ -1,0 +1,12 @@
+begin				 
+				 
+integer listOfStuff, num2;	          $ varible definition
+
+
+
+if false | true -> read listOfStuff; $if statment
+[] true | false -> num2 := 4; fi     $2nd half of if should not effect things
+
+write listOfStuff;
+
+end. $ends program

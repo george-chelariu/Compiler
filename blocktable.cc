@@ -1,7 +1,7 @@
 #include "blocktable.h"
 
 //Constructor for table entries
-TableEntry::TableEntry(int i, mKind k, int s, mType t, int v, int bl)
+TableEntry::TableEntry(int i, mKind k, int s, mType t, int v, int bl, int dis)
 {
    index = i;
    kind = k;
@@ -9,10 +9,11 @@ TableEntry::TableEntry(int i, mKind k, int s, mType t, int v, int bl)
    type = t;
    value = v;
    bLevel = bl;
+   displacement =dis;
 }
 BlockTable::BlockTable(int h){	
    blockLevel = 0;
-   TableEntry filler(-1, CONSTANT, -1,Universal, -1, -1);
+   TableEntry filler(-1, CONSTANT, -1,Universal, -1, -1, -1);
    for(int i = 0; i< MAXBLOCK; i++){
       table[i].push_back(filler);
       table[i].pop_back();
@@ -46,10 +47,10 @@ void BlockTable::output(){
 
 //The define function inserts a TableEntry if the symbol table does not have
 //the index that we've passed in
-bool BlockTable::define(int index, mKind kind, int size, mType type, int val, int block)
+bool BlockTable::define(int index, mKind kind, int size, mType type, int val, int block, int dis)
 {
    if (!search(index)){
-      TableEntry result(index, kind, size, type,val, blockLevel);
+      TableEntry result(index, kind, size, type,val, blockLevel, dis);
       table[blockLevel].push_back(result);
       return true;
    }
@@ -74,7 +75,7 @@ TableEntry BlockTable::find(int index, bool& error)
    //not finding the table entry means we have an error, so set it to true
    error = true;
    //then return a dummy table entry since it expects a TableEntry
-   TableEntry holder (-1, CONSTANT, 0, Universal, -1, 0);
+   TableEntry holder (-1, CONSTANT, 0, Universal, -1, 0, 0);
    return holder;
    
 }

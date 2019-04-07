@@ -124,7 +124,7 @@ void Parser::work(Administration &ad){
 bool Parser::block(int varend, int start){
    // setting the size for everything that was before us
    // so if in between these values a parent caused the error and we pass it up
-   int varibles;
+   int varibles=0;
    int topName = stopName.size();
 
    //setting up our handling
@@ -156,7 +156,8 @@ bool Parser::block(int varend, int start){
    adv();
    //starts defn part
    // returns true if no unhandled Token false if unhadled at that level
-   if(!defnPart(varend, &varibles)){
+   int offset = 3;
+   if(!defnPart(varend, varibles, offset)){
       int issue = stop();
       //gets the points in the vectors that have good Tokens
       if (issue <= topName){
@@ -222,8 +223,7 @@ bool Parser::block(int varend, int start){
    just with differant things pushed and poped, and differant hard comparisons
    like "end"
 */
-bool Parser::defnPart(int startoffset, int* varibles){
-   int offset = startoffset;
+bool Parser::defnPart(int startoffset, int& varibles, int& offset){
    int topName = stopName.size();
    stopName.push_back(CONST);
    stopName.push_back(PROC);
@@ -291,7 +291,7 @@ bool Parser::defnPart(int startoffset, int* varibles){
    stopName.pop_back(); //pop int
    stopName.pop_back(); //pop proc
    stopName.pop_back(); //const
-   if (!defnPart(offset, varibles)){
+   if (!defnPart(startoffset, varibles, offset)){
        
      if(stop() <= topName){
 	 return false;
@@ -363,7 +363,7 @@ bool Parser::constDef(){
 	 value = 0;
 	 break;
    }
-   if(!Table->define(HTable, CONSTANT, 0, type, value, 0)){
+   if(!Table->define(HTable, CONSTANT, 0, type, value, 0, 0)){
       typeError();
    }
    stopName.pop_back();//num
@@ -410,7 +410,7 @@ bool Parser::procDef(){
       }
    }
    int procLabel = newLabel();
-   if (!(Table->define(input.getValue(),PROCEDURE, 0, Universal, procLabel, 0 )))
+   if (!(Table->define(input.getValue(),PROCEDURE, 0, Universal, 0, 0 ,procLabel)))
       typeError();
       
    if(!Table->newBlock()){
@@ -440,7 +440,8 @@ bool Parser::procDef(){
    return true;
 }
 
-bool Parser::varibleDef(int* varibles, int varstart){
+bool Parser::varibleDef(int& varibles, int& varstart){
+   
    int topName = stopName.size();
    mType type;
    vector<int> names;
@@ -500,7 +501,7 @@ bool Parser::varibleDef(int* varibles, int varstart){
       varibles += names.size() * input.getValue();
 // here
       while(!names.empty()){	    
-	 if (!Table->define(names.back(),ARR, input.getValue(),type, varstart, 0)){
+	 if (!Table->define(names.back(),ARR, input.getValue(),type, 0, 0, varstart)){
 	    typeError();
 	 }
 	 varstart+=input.getValue();
@@ -529,10 +530,10 @@ bool Parser::varibleDef(int* varibles, int varstart){
       else{
 	 varibles += names.size();
 	 while( !names.empty()){	    
-	    if (!Table->define(names.back(),VARIABLE,0 ,type, varstart, 0))
-	       typeError();
-	    names.pop_back();
+	    if (!Table->define(names.back(),VARIABLE,0 ,type, 0, 0, varstart))
+	       typeError();	   
 	    varstart++;
+	     names.pop_back();
 	 }
 	  
 	    
@@ -820,15 +821,15 @@ bool Parser::varAcc( mType& exp){
    TableEntry temp = Table->find(input.getValue(), error1);
    if (error1)
       typeError();
-   
    stopName.pop_back(); //ID
    stopName.pop_back(); //[
+   admin->emit3("VARIABLE", Table->currentLevel() - temp.bLevel, temp.displacement);
    if (current ==ID)
       adv();
    if (current == LEFTB){
       stopName.push_back(RIGHTB); // push ]
       adv();
-     
+      int holder = admin->getlineNumber();
       if (!expression(exp)){
 	 int issue = stop();
 	 if (issue <= topName ){
@@ -836,7 +837,7 @@ bool Parser::varAcc( mType& exp){
 	    return false;
 	 }
       }
-      admin->emit3("INDEX", temp.size, admin->getlineNumber());
+      admin->emit3("INDEX", temp.size, holder);
       if (current != RIGHTB){
 	 int issue = error();
 	 if (issue <= topName ){
@@ -849,9 +850,7 @@ bool Parser::varAcc( mType& exp){
       
       
    }
-   else{
-      //admin->emit3("VARIABLE", Table->currentLevel() - tempentry.level, tempentry.displacement);
-   }
+ 
 
    return true;
 }
@@ -859,6 +858,7 @@ bool Parser::varAcc( mType& exp){
 
 bool Parser::expression(mType& expholder){
    int topName = stopName.size();
+   string type;
    stopName.push_back(AND);
    stopName.push_back(OR);
    if(!primeExp(expholder)){
@@ -870,12 +870,12 @@ bool Parser::expression(mType& expholder){
    }
 
    while (current == AND || current == OR){
-      adv();
+    
       if (current == AND)
-	 admin->emit1("AND");
+	 type= "AND";	 
       else
-	 admin->emit1("OR");
-      
+	 type = "OR";
+      adv();
       if(!primeExp(expholder)){      
 	 int issue = stop();
 	 if (issue <= topName ){
@@ -886,7 +886,7 @@ bool Parser::expression(mType& expholder){
 	 }
       }
       expholder = Boolean;
-
+      admin->emit1(type);
    }
    stopName.pop_back();//&
    stopName.pop_back();//|
@@ -895,6 +895,7 @@ bool Parser::expression(mType& expholder){
 
 bool Parser::primeExp(mType& expholder){
    int topName = stopName.size();
+   string type;
    stopName.push_back(GREATERTHAN);
    stopName.push_back(EQUALS);
    stopName.push_back(LESSTHAN);
@@ -910,11 +911,11 @@ bool Parser::primeExp(mType& expholder){
   
    if (current == GREATERTHAN || current == EQUALS ||current == LESSTHAN){
       if (current == LESSTHAN)
-	 admin->emit1("LESS");
+	 type= "LESS";
       else if (current == EQUALS)
-	 admin->emit1("EQUAL");
+	 type= " EQUAL";
       else
-	 admin->emit1("GREATER");
+	 type= "GREATER";
       adv();
       if(!simpleExp(expholder)){
        
@@ -931,7 +932,7 @@ bool Parser::primeExp(mType& expholder){
 
       }
       expholder= Boolean;
-
+      admin->emit1(type);
    }
    stopName.pop_back();//>
    stopName.pop_back();//=
@@ -945,6 +946,7 @@ bool Parser::simpleExp(mType& expholder){
    int topName = stopName.size();
    stopName.push_back(MINUS);
    stopName.push_back(PLUS);
+   string type;
    if (current == MINUS)
       adv();
    if(!term(expholder)){     
@@ -957,9 +959,9 @@ bool Parser::simpleExp(mType& expholder){
 
    while (current == PLUS||current == MINUS){
       if (current == PLUS)
-	 admin->emit1("ADD");
+	 type = "ADD";
       else
-	 admin->emit1("SUBTRACT");
+	 type = "SUBTRACT";
       adv();
       if(!term(expholder)){
        
@@ -972,7 +974,7 @@ bool Parser::simpleExp(mType& expholder){
 	 }
       }
       expholder = Integer;
-
+      admin->emit1(type);
    }
    stopName.pop_back();//-
    stopName.pop_back();//+
@@ -981,6 +983,7 @@ bool Parser::simpleExp(mType& expholder){
 
 bool Parser::term(mType& expholder){
    int topName = stopName.size();
+   string type;
    stopName.push_back(TIMES);
    stopName.push_back(DIVIDE);
    stopName.push_back(MODULUS);
@@ -996,11 +999,11 @@ bool Parser::term(mType& expholder){
 
    while (current ==TIMES|| current ==DIVIDE||current == MODULUS){
       if (current == TIMES)
-	 admin->emit1("MULTIPLY");
+	 type = "MULTIPLY";
       else if (current == DIVIDE)
-	 admin->emit1("DIVIDE");
+	 type = "DIVIDE";
       else
-	 admin->emit1("MODULO");
+	 type = "MODULO";
       adv();
       if(!factor(expholder)){
        
@@ -1014,7 +1017,7 @@ bool Parser::term(mType& expholder){
 	 }
       }
       expholder = Integer;
-
+      admin->emit1(type);
    }
    stopName.pop_back();// "/"
    stopName.pop_back();// "\"
@@ -1026,7 +1029,7 @@ bool Parser::term(mType& expholder){
 bool Parser::factor(mType& expholder){
    int topName = stopName.size();
    if (current == NOT){
-      admin->emit1("NOT");
+     
       adv();
       if(!factor(expholder)){
        
@@ -1038,7 +1041,7 @@ bool Parser::factor(mType& expholder){
 	
       }
       expholder = Boolean;
-
+      admin->emit1("NOT");
    }
    else if (current==LEFTP){
       adv();
@@ -1070,14 +1073,7 @@ bool Parser::factor(mType& expholder){
       if (error){
 	 typeError();
       }
-      if (I.kind == CONSTANT){
-	 admin->emit2("CONSTANT", I.value);
-
-      }
-      else{
-	 admin->emit1("VALUE");
-	 
-      }
+     
       expholder = I.type;
       if(!varAcc(expholder)){
        
@@ -1085,6 +1081,13 @@ bool Parser::factor(mType& expholder){
 	 if (issue <= topName ){
 	    return false;
 	 }
+      }
+      if (I.kind == CONSTANT){
+	 admin->emit2("CONSTANT", I.value);
+
+      }
+      else{
+	 admin->emit1("VALUE");	 
       }
    }
    else {
@@ -1205,7 +1208,7 @@ bool Parser::precedureState(){
    if (error)
       typeError();
 
-   //admin->emit3("CALL", Table->currentLevel() - temp.bLevel, temp.startLabel);
+   admin->emit3("CALL", Table->currentLevel() - temp.bLevel, temp.displacement);
    stopName.pop_back(); //ID
    adv();
    return true;
@@ -1268,10 +1271,10 @@ bool Parser::guardedComList(int& startLabel, int jumpLabel){
 	 
 }
 
-bool Parser::guardedCom(int& startlabel, int jumpLabel){
+bool Parser::guardedCom(int& startLabel, int jumpLabel){
    mType exp = Universal;
    int topName = stopName.size();
-   admin->emit2("DEFADDR", startlabel);
+   admin->emit2("DEFADDR", startLabel);
    stopName.push_back(ARROW);
    if(!expression(exp)){
        
@@ -1282,12 +1285,12 @@ bool Parser::guardedCom(int& startlabel, int jumpLabel){
 	 return false;
       }
    }
-   int startLabel = newLabel();
+   startLabel = newLabel();
    if (exp != Boolean){
       typeError();
    }
 
-    admin->emit2("ARROW", startLabel);
+   admin->emit2("ARROW", startLabel);
    if (current == ARROW)
       adv();
    else{

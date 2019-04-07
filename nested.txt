@@ -4,7 +4,9 @@ $ emit3("PROG", VarLabel, StartLabel)
 $ over the next three lines
 $ in the assembler code file
 begin
-  integer i,j,k;
+  integer i;
+  integer j;
+  integer k;
   integer array f[2];
 $ A call to proc p1 needs to know the address 
 $ of the PROC instruction for p1; we generate
@@ -22,7 +24,8 @@ $ emit3("PROC", VarLabel, StartLabel)
 $
   proc p1
   begin
-    integer i,l;
+    integer i;
+    integer l;
     integer array a[2];
 $ p11:
 $ emit1(ProcLabel)

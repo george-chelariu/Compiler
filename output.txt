@@ -5,35 +5,14 @@ Token: BEGIN
 	Value: 210
 LINE 2 : 
 LINE 3 : 
-Token: CONST
-	Attributes: 
-	Lexeme: const
-	Value: 244
-Token: ID
-	Attributes: 
-	Lexeme: freefall
-	Value: 219
-Token: EQUALS
-	Attributes: 
-	Lexeme: =
-	Value: -1
-Token: NUM
-	Attributes: 
-	Lexeme:  
-	Value: 123
-Token: SEMICOLON
-	Attributes: 
-	Lexeme: ;
-	Value: -1
-LINE 4 : 
 Token: INTEGER
 	Attributes: 
 	Lexeme: integer
 	Value: 136
 Token: ID
 	Attributes: 
-	Lexeme: num1
-	Value: 78
+	Lexeme: listOfStuff
+	Value: 122
 Token: COMMA
 	Attributes: 
 	Lexeme: ,
@@ -46,172 +25,30 @@ Token: SEMICOLON
 	Attributes: 
 	Lexeme: ;
 	Value: -1
+LINE 4 : 
 LINE 5 : 
-Token: BOOLEAN
-	Attributes: 
-	Lexeme: Boolean
-	Value: 90
-Token: ID
-	Attributes: 
-	Lexeme: flag
-	Value: 103
-Token: SEMICOLON
-	Attributes: 
-	Lexeme: ;
-	Value: -1
 LINE 6 : 
-Token: INTEGER
-	Attributes: 
-	Lexeme: integer
-	Value: 136
-Token: ARRAY
-	Attributes: 
-	Lexeme: array
-	Value: 236
-Token: ID
-	Attributes: 
-	Lexeme: listOfStuff1
-	Value: 122
-Token: LEFTB
-	Attributes: 
-	Lexeme: [
-	Value: -1
-Token: NUM
-	Attributes: 
-	Lexeme:  
-	Value: 12
-Token: RIGHTB
-	Attributes: 
-	Lexeme: ]
-	Value: -1
-Token: SEMICOLON
-	Attributes: 
-	Lexeme: ;
-	Value: -1
 LINE 7 : 
-Token: INTEGER
+Token: IF
 	Attributes: 
-	Lexeme: integer
-	Value: 136
-Token: ARRAY
+	Lexeme: if
+	Value: 207
+Token: FALSE
 	Attributes: 
-	Lexeme: array
-	Value: 236
-Token: ID
+	Lexeme: false
+	Value: 216
+Token: OR
 	Attributes: 
-	Lexeme: listOfStuff2
-	Value: 59
-Token: LEFTB
-	Attributes: 
-	Lexeme: [
+	Lexeme: |
 	Value: -1
 Token: TRUE
 	Attributes: 
 	Lexeme: true
 	Value: 141
-Token: RIGHTB
+Token: ARROW
 	Attributes: 
-	Lexeme: ]
-	Value: -1
-Token: SEMICOLON
-	Attributes: 
-	Lexeme: ;
-	Value: -1
-LINE 8 : 
-Token: INTEGER
-	Attributes: 
-	Lexeme: integer
-	Value: 136
-Token: ARRAY
-	Attributes: 
-	Lexeme: array
-	Value: 236
-Token: ID
-	Attributes: 
-	Lexeme: listOfStuff3
-	Value: 181
-Token: LEFTB
-	Attributes: 
-	Lexeme: [
-	Value: -1
-Token: ID
-	Attributes: 
-	Lexeme: name
-	Value: 110
-Token: RIGHTB
-	Attributes: 
-	Lexeme: ]
-	Value: -1
-Token: SEMICOLON
-	Attributes: 
-	Lexeme: ;
-	Value: -1
-LINE 9 : 
-LINE 10 : 
-LINE 11 : 
-LINE 12 : 
-LINE 13 : 
-LINE 14 : 
-LINE 15 : 
-Token: BOOLEAN
-	Attributes: 
-	Lexeme: Boolean
-	Value: 90
-Token: ID
-	Attributes: 
-	Lexeme: test
-	Value: 282
-Token: SEMICOLON
-	Attributes: 
-	Lexeme: ;
-	Value: -1
-LINE 16 : 
-Token: SKIP
-	Attributes: 
-	Lexeme: skip
-	Value: 132
-Token: TIMES
-	Attributes: 
-	Lexeme: *
-	Value: -1
-Token: TIMES
-	Attributes: 
-	Lexeme: *
-	Value: -1
-Token: TIMES
-	Attributes: 
-	Lexeme: *
-	Value: -1
-Token: TIMES
-	Attributes: 
-	Lexeme: *
-	Value: -1
-Token: TIMES
-	Attributes: 
-	Lexeme: *
-	Value: -1
-Token: TIMES
-	Attributes: 
-	Lexeme: *
-	Value: -1
-Token: TIMES
-	Attributes: 
-	Lexeme: *
-	Value: -1
-Token: TIMES
-	Attributes: 
-	Lexeme: *
-	Value: -1
-Token: TIMES
-	Attributes: 
-	Lexeme: *
-	Value: -1
-Token: SEMICOLON
-	Attributes: 
-	Lexeme: ;
-	Value: -1
-LINE 17 : 
-LINE 18 : 
+	Lexeme: ->
+	Value: 214
 Token: READ
 	Attributes: 
 	Lexeme: read
@@ -219,67 +56,68 @@ Token: READ
 Token: ID
 	Attributes: 
 	Lexeme: listOfStuff
-	Value: 303
-Token: LEFTB
-	Attributes: 
-	Lexeme: [
-	Value: -1
-Token: NUM
-	Attributes: 
-	Lexeme:  
-	Value: 2
-Token: RIGHTB
-	Attributes: 
-	Lexeme: ]
-	Value: -1
+	Value: 122
 Token: SEMICOLON
 	Attributes: 
 	Lexeme: ;
 	Value: -1
-LINE 19 : 
-LINE 20 : 
+LINE 8 : 
+Token: DOUBLEB
+	Attributes: 
+	Lexeme: []
+	Value: 184
+Token: TRUE
+	Attributes: 
+	Lexeme: true
+	Value: 141
+Token: OR
+	Attributes: 
+	Lexeme: |
+	Value: -1
+Token: FALSE
+	Attributes: 
+	Lexeme: false
+	Value: 216
+Token: ARROW
+	Attributes: 
+	Lexeme: ->
+	Value: 214
+Token: ID
+	Attributes: 
+	Lexeme: num2
+	Value: 79
+Token: ASSIGN
+	Attributes: 
+	Lexeme: :=
+	Value: 119
+Token: NUM
+	Attributes: 
+	Lexeme:  
+	Value: 4
+Token: SEMICOLON
+	Attributes: 
+	Lexeme: ;
+	Value: -1
+Token: FI
+	Attributes: 
+	Lexeme: fi
+	Value: 107
+LINE 9 : 
+LINE 10 : 
 Token: WRITE
 	Attributes: 
 	Lexeme: write
 	Value: 248
 Token: ID
 	Attributes: 
-	Lexeme: num1
-	Value: 78
-Token: COMMA
-	Attributes: 
-	Lexeme: ,
-	Value: -1
-Token: ID
-	Attributes: 
-	Lexeme: num2
-	Value: 79
+	Lexeme: listOfStuff
+	Value: 122
 Token: SEMICOLON
 	Attributes: 
 	Lexeme: ;
 	Value: -1
-LINE 21 : 
-LINE 22 : 
-LINE 23 : 
-LINE 24 : 
-LINE 25 : 
-LINE 26 : 
-LINE 27 : 
-LINE 28 : 
-LINE 29 : 
-LINE 30 : 
-LINE 31 : 
-LINE 32 : 
-LINE 33 : 
-LINE 34 : 
-LINE 35 : 
-LINE 36 : 
-LINE 37 : 
-LINE 38 : 
-LINE 39 : 
-LINE 40 : 
-LINE 41 : 
-LINE 42 : 
+LINE 11 : 
+LINE 12 : 
 Token: END
 	Attributes: 
 	Lexeme: end

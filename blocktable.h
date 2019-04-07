@@ -7,14 +7,16 @@
 #define MAXBLOCK 10
 struct TableEntry
 {
-   TableEntry(int i, mKind k, int s, mType t, int v, int bl);
+   TableEntry(int i, mKind k, int s, mType t, int v, int bl, int dis);
    int index;  //hash table index of the object
    mKind kind; //array, constant, variable, procedure
    int size;   //only for array
    mType type; //Boolean, integer, universal
    int value;  //only relevant to constants, not variables
    int bLevel; //Block Level, it's the level of the block where the
-};             //definitions are encountered
+               //definitions are encountered
+   int displacement;
+};
                 
    class BlockTable
    {
@@ -30,7 +32,7 @@ struct TableEntry
       
       //bool define inserts a TableEntry with necessary field values if index
       //doesn't exist and return true; else return false
-      bool define (int ind, mKind kind, int size, mType type, int val, int block);
+      bool define (int ind, mKind kind, int size, mType type, int val, int block, int dis);
       //all the fields of TableEntry get passed within the params of define
 
       //find function looks through the table and returns the table entry

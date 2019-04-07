@@ -11,6 +11,7 @@
 #include "parser.h"
 #include "blocktable.h"
 
+
 // This is the maximum number of errors before the compiler bails out
 #define MAXERRORS 10
 using namespace std;
@@ -82,5 +83,8 @@ class Administration{
     bool emitting;
 
     int lineNumber;
+
+
+    bool human;
 };
 #endif // ADMIN_H

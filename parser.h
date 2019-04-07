@@ -55,7 +55,7 @@ class Parser{
    // handles the block portion of the program always starting with begin and ending with end
    bool block(int varend, int start);
    //the area of the program when we define everything all of them end with a ; and will repeat until you call something in the statment part
-   bool defnPart( int varend, int* varibles);
+   bool defnPart( int varend, int& varibles, int& offset);
    // handles the definitions of constant varibleswith assigning them varibles as well
    bool constDef();
    // helper function to see if a name is Valid
@@ -65,7 +65,7 @@ class Parser{
    //handles the definition of procedures by calling block() withen itself
    bool procDef();
    // handles the creation of varibles wither that be a series of int, or booleans, can also handle arrays ( no assigning)
-   bool varibleDef(int* varibles, int offset);
+   bool varibleDef(int& varibles, int& offset);
    //helper function to handle a group of names
    bool varList(vector<int>& names);
    // statement part of the program

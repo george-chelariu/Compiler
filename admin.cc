@@ -5,12 +5,15 @@
 
 Administration::Administration(ifstream& in, ofstream &out, Scanner &sc, Parser &pc, ofstream &outasm){
    outputasm = &outasm;
+   emitting = true;
    outputfileptr = &out;
    scanr= &sc;
    lineNo = 0;
+   lineNumber = 1;
    correctline = true;
    errorCount = 0;
    parsr= &pc;
+
 }
 
 
@@ -42,9 +45,13 @@ void Administration::emit1(string op)
    //remains true until we find an error
    if(emitting){
       //output just the op
-      *outputasm << op << endl;
+	 *outputasm << op << endl;
+   
+   
    }
+     
    lineNumber++;
+   
 }
 
 void Administration::emit2(string op, int arg1)
@@ -52,10 +59,12 @@ void Administration::emit2(string op, int arg1)
    //remains true until we find an error 
    if(emitting){
       //output the op and argument
-      *outputasm << op << endl << arg1 << endl;
+	 *outputasm << op << endl;
+      *outputasm  << arg1 << endl;
    }
    lineNumber++;
    lineNumber++;
+   
 }
 
 void Administration::emit3(string op, int arg1, int arg2)
@@ -63,7 +72,9 @@ void Administration::emit3(string op, int arg1, int arg2)
    //remains true until we find an error
    if(emitting){
       //output the op and the 2 arguments
-      *outputasm << op << arg1 << endl << arg2 << endl;
+      
+
+	 *outputasm << op << endl << arg1 << endl << arg2 << endl;
    }
    lineNumber++;
    lineNumber++;
